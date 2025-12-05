@@ -56,14 +56,12 @@ public class PlayerMovement : MonoBehaviour
     public void Move(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
-        Debug.Log("Move called");
     }
 
     public void Jump(InputAction.CallbackContext context)
     {
         if (context.performed && grounded)
         {
-            Debug.Log("Jump called");
             rb.linearVelocity = new Vector2(rb.linearVelocity.z, jumpForce);
         }
     }
