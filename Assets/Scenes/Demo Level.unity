@@ -393,15 +393,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   cameraTransform: {fileID: 330585546}
-  gravity: 9.8
   walkSpeed: 8
   sprintSpeed: 17
   sprintTransitSpeed: 5
-  airMoveSpeed: 5
-  airControl: 2
-  jumpHeight: 2
-  variableJump: 0.5
   coyoteTime: 0.2
+  gravity: 20
+  airMoveSpeed: 8
+  airControl: 2
+  jumpHeight: 4
+  variableJump: 0.5
+  fallGravityMultiplier: 1.5
+  apexGravityMultiplier: 0.3
+  apexThreshold: 0.0001
 --- !u!143 &238737668
 CharacterController:
   m_ObjectHideFlags: 0

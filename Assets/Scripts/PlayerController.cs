@@ -8,22 +8,27 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Transform cameraTransform;
 
     [Header("Movement Settings")]
-    [SerializeField] float gravity = 9.8f;
-    [SerializeField] float walkSpeed = 5f;
-    [SerializeField] float sprintSpeed = 10f;
+    [SerializeField] float walkSpeed = 8f;
+    [SerializeField] float sprintSpeed = 17f;
     [SerializeField] float sprintTransitSpeed = 5f;
-    [SerializeField] float airMoveSpeed = 5f; // Max speed you can reach in air
-    [SerializeField] float airControl = 2f; // How quickly you can change direction (0-10 range)
-    [SerializeField] float jumpHeight = 2f;
-    [SerializeField] float variableJump = 0.5f;
     [SerializeField] float coyoteTime = 0.2f;
+
+    [Header("Jump Feel")]
+    [SerializeField] float gravity = 20f;
+    [SerializeField] float airMoveSpeed = 8f; // Max speed you can reach in air
+    [SerializeField] float airControl = 2f; // How quickly you can change direction (0-10 range)
+    [SerializeField] float jumpHeight = 4f;
+    [SerializeField] float variableJump = 0.5f;
+    [SerializeField] float fallGravityMultiplier = 1.5f;  // Faster fall
+    [SerializeField] float apexGravityMultiplier = 0.5f;  // Floaty at top
+    [SerializeField] float apexThreshold = 2f;  // What counts as "near apex"
 
     Vector2 moveInput;
     Vector3 horizontalVelocity;
     float verticalVelocity;
-    float speed;
+    float currentSpeed;
     bool isSprinting;
-    bool isJumping;
+    bool jumpRequested = false;
 
     void Awake()
     {
@@ -32,7 +37,7 @@ public class PlayerController : MonoBehaviour
 
     void Start()
     {
-        speed = walkSpeed;
+        currentSpeed = walkSpeed;
     }
 
     void Update()
@@ -50,7 +55,7 @@ public class PlayerController : MonoBehaviour
     {
         if (controller.isGrounded)
         {
-            horizontalVelocity = (cameraTransform.forward * moveInput.y + cameraTransform.right * moveInput.x) * speed;
+            horizontalVelocity = (cameraTransform.forward * moveInput.y + cameraTransform.right * moveInput.x) * currentSpeed;
         }
         else // in air
         {
@@ -70,26 +75,49 @@ public class PlayerController : MonoBehaviour
     {
         if (isSprinting)
         {
-            speed = Mathf.Lerp(speed, sprintSpeed, sprintTransitSpeed * Time.deltaTime);  
+            currentSpeed = Mathf.Lerp(currentSpeed, sprintSpeed, sprintTransitSpeed * Time.deltaTime);  
         }
         else
         {
-            speed = Mathf.Lerp(speed, walkSpeed, sprintTransitSpeed * Time.deltaTime);  
+            currentSpeed = Mathf.Lerp(currentSpeed, walkSpeed, sprintTransitSpeed * Time.deltaTime);  
         }
-    }
+    }    
 
     float ApplyGravity()
     {
-        if (controller.isGrounded && verticalVelocity <= 0 && isJumping)
+        if (jumpRequested && controller.isGrounded)
+        {
+            ApplyJump();
+            return verticalVelocity;
+        }
+
+        if (controller.isGrounded && verticalVelocity < 0)
         {
             verticalVelocity = -2f;
-            isJumping = false;
         }
         else
         {
-            verticalVelocity -= gravity * Time.deltaTime;
+            float gravityToApply = gravity;
+
+            if (Mathf.Abs(verticalVelocity) < apexThreshold) // Reduced gravity when near jump apex
+            {
+                gravityToApply *= apexGravityMultiplier;
+            }
+            else if (verticalVelocity < 0) // Increased gravity while falling
+            {
+                gravityToApply *= fallGravityMultiplier;
+            }
+
+            verticalVelocity -= gravityToApply * Time.deltaTime;
         }
+
         return verticalVelocity;
+    }
+
+    void ApplyJump()
+    {
+        jumpRequested = false;
+        verticalVelocity = Mathf.Sqrt(jumpHeight * gravity * 2);
     }
 
     public void Move(InputAction.CallbackContext context)
@@ -99,10 +127,9 @@ public class PlayerController : MonoBehaviour
 
     public void Jump(InputAction.CallbackContext context)
     {
-        if (context.performed && controller.isGrounded && !isJumping)
+        if (context.performed)
         {
-            isJumping = true;
-            verticalVelocity = Mathf.Sqrt(jumpHeight * gravity * 2);
+            jumpRequested = true;
         }
 
         if (context.canceled && verticalVelocity > 0)
