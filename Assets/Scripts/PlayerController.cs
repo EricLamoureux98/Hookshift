@@ -8,20 +8,31 @@ public class PlayerController : MonoBehaviour
     [SerializeField] Transform cameraTransform;
 
     [Header("Movement Settings")]
+    [SerializeField] float gravity = 9.8f;
     [SerializeField] float walkSpeed = 5f;
     [SerializeField] float sprintSpeed = 10f;
     [SerializeField] float sprintTransitSpeed = 5f;
+    [SerializeField] float airMoveSpeed = 5f; // Max speed you can reach in air
+    [SerializeField] float airControl = 2f; // How quickly you can change direction (0-10 range)
     [SerializeField] float jumpHeight = 2f;
-    [SerializeField] float gravity = 9.8f;
+    [SerializeField] float variableJump = 0.5f;
+    [SerializeField] float coyoteTime = 0.2f;
 
     Vector2 moveInput;
+    Vector3 horizontalVelocity;
     float verticalVelocity;
     float speed;
     bool isSprinting;
+    bool isJumping;
 
     void Awake()
     {
         controller = GetComponent<CharacterController>();
+    }
+
+    void Start()
+    {
+        speed = walkSpeed;
     }
 
     void Update()
@@ -37,11 +48,22 @@ public class PlayerController : MonoBehaviour
 
     void GroundMovement()
     {
-        Vector3 move = cameraTransform.forward * moveInput.y + cameraTransform.right * moveInput.x;       
+        if (controller.isGrounded)
+        {
+            horizontalVelocity = (cameraTransform.forward * moveInput.y + cameraTransform.right * moveInput.x) * speed;
+        }
+        else // in air
+        {
+            Vector3 targetAirVelocity = (cameraTransform.forward * moveInput.y + cameraTransform.right * moveInput.x) * airMoveSpeed;
 
-        move *= speed;
-        move.y = VerticalForce();
-        controller.Move(move * Time.deltaTime);
+            // Gradually move current velocity toward the input direction
+            horizontalVelocity = Vector3.Lerp(horizontalVelocity, targetAirVelocity, airControl * Time.deltaTime);
+        }
+
+        float verticalMove = ApplyGravity();
+
+        Vector3 finalMove = new Vector3(horizontalVelocity.x, verticalMove, horizontalVelocity.z);
+        controller.Move(finalMove * Time.deltaTime);
     }
 
     void SprintMovement()
@@ -56,11 +78,12 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    float VerticalForce()
+    float ApplyGravity()
     {
-        if (controller.isGrounded && verticalVelocity <= 0)
+        if (controller.isGrounded && verticalVelocity <= 0 && isJumping)
         {
-            verticalVelocity = -1f;
+            verticalVelocity = -2f;
+            isJumping = false;
         }
         else
         {
@@ -76,23 +99,27 @@ public class PlayerController : MonoBehaviour
 
     public void Jump(InputAction.CallbackContext context)
     {
-        if (context.performed && controller.isGrounded)
+        if (context.performed && controller.isGrounded && !isJumping)
         {
+            isJumping = true;
             verticalVelocity = Mathf.Sqrt(jumpHeight * gravity * 2);
+        }
+
+        if (context.canceled && verticalVelocity > 0)
+        {
+            verticalVelocity *= variableJump;
         }
     }
 
     public void Sprint(InputAction.CallbackContext context)
     {
         if (context.performed)
-        {
-            //speed = Mathf.Lerp(speed, sprintSpeed, sprintTransitSpeed * Time.deltaTime);     
+        {  
             isSprinting = true;       
         }
 
         if (context.canceled)
         {
-            //speed = Mathf.Lerp(speed, walkSpeed, sprintTransitSpeed * Time.deltaTime);  
             isSprinting = false;
         }
     }
