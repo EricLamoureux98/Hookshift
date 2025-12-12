@@ -756,6 +756,22 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: ed970510-a041-4c03-8e1d-6e9f1fb4366e
     m_ActionName: 'Player/Grapple[/Mouse/leftButton]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 238737672}
+        m_TargetAssemblyTypeName: Grappling, Assembly-CSharp
+        m_MethodName: PullInGrapple
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: ce7c1767-cf55-4d42-9b63-04ce0c3c4811
+    m_ActionName: 'Player/Pull In Grapple[/Mouse/rightButton]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player

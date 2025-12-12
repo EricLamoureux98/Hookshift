@@ -54,7 +54,7 @@ public class Grappling : MonoBehaviour
         {
             grapplePoint = hit.point;
 
-            Invoke(nameof(ExecuteGrapple), grappleDelayTime);
+            //Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
         else
         {
@@ -68,11 +68,13 @@ public class Grappling : MonoBehaviour
 
     void ExecuteGrapple()
     {
-        
+        playerController.SetGrapplingState(true);
+        playerController.grapplePoint = grapplePoint;
     }
 
     void StopGrapple()
     {
+        playerController.SetGrapplingState(false);
         isGrappling = false;
 
         grapplingTimer = grapplingCooldown;
@@ -84,6 +86,14 @@ public class Grappling : MonoBehaviour
         if (context.performed)
         {
             StartGrapple();
+        }
+    }
+
+    public void PullInGrapple(InputAction.CallbackContext context)
+    {
+        if (context.performed && isGrappling)
+        {
+            ExecuteGrapple();
         }
     }
 }

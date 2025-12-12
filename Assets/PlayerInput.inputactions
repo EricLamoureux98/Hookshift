@@ -34,9 +34,18 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Grapple",
+                    "name": "Fire Grapple",
                     "type": "Button",
                     "id": "ed970510-a041-4c03-8e1d-6e9f1fb4366e",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Pull In Grapple",
+                    "type": "Button",
+                    "id": "ce7c1767-cf55-4d42-9b63-04ce0c3c4811",
                     "expectedControlType": "",
                     "processors": "",
                     "interactions": "",
@@ -172,7 +181,18 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Grapple",
+                    "action": "Fire Grapple",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "019230bd-c9f5-4938-aaba-369cb799984e",
+                    "path": "<Mouse>/rightButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Pull In Grapple",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

@@ -29,6 +29,10 @@ public class PlayerController : MonoBehaviour
     float currentSpeed;
     bool isSprinting;
     bool jumpRequested = false;
+    
+    [SerializeField] float grappleSpeed = 15f;
+    bool isGrappling;
+    public Vector3 grapplePoint;
 
     void Awake()
     {
@@ -38,15 +42,21 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         currentSpeed = walkSpeed;
+        isGrappling = false;
     }
 
     void Update()
     {
         Movement();
+        if (isGrappling && grapplePoint != Vector3.zero)
+        {
+            PullToGrapple();
+        }
     }
 
     void Movement()
     {
+        if (isGrappling) return; 
         GroundMovement();
         SprintMovement();
     }
@@ -86,6 +96,8 @@ public class PlayerController : MonoBehaviour
 
     float ApplyGravity()
     {
+        if (isGrappling) verticalVelocity *= 0;
+
         if (jumpRequested && controller.isGrounded)
         {
             ApplyJump();
@@ -121,6 +133,18 @@ public class PlayerController : MonoBehaviour
         verticalVelocity = Mathf.Sqrt(jumpHeight * gravity * 2);
     }
 
+    public void SetGrapplingState(bool grappling)
+    {
+        isGrappling = grappling;
+    }
+
+    void PullToGrapple()
+    {
+        Vector3 direction = (grapplePoint - transform.position).normalized;
+        Vector3 grappleVelocity = direction * grappleSpeed;
+        controller.Move(grappleVelocity * Time.deltaTime);
+    }
+
     public void Move(InputAction.CallbackContext context)
     {
         moveInput = context.ReadValue<Vector2>();
@@ -128,14 +152,17 @@ public class PlayerController : MonoBehaviour
 
     public void Jump(InputAction.CallbackContext context)
     {
-        if (context.performed)
+        if (!isGrappling)
         {
-            jumpRequested = true;
-        }
+            if (context.performed)
+            {
+                jumpRequested = true;
+            }
 
-        if (context.canceled && verticalVelocity > 0)
-        {
-            verticalVelocity *= variableJump;
+            if (context.canceled && verticalVelocity > 0)
+            {
+                verticalVelocity *= variableJump;
+            }
         }
     }
 
