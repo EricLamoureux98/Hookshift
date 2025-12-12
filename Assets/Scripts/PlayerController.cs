@@ -55,13 +55,14 @@ public class PlayerController : MonoBehaviour
     {
         if (controller.isGrounded)
         {
-            horizontalVelocity = (cameraTransform.forward * moveInput.y + cameraTransform.right * moveInput.x) * currentSpeed;
+            // .normalized to keep diagonal movement speed the same 
+            horizontalVelocity = (cameraTransform.forward * moveInput.y + cameraTransform.right * moveInput.x).normalized * currentSpeed;
         }
         else // in air
         {
-            Vector3 targetAirVelocity = (cameraTransform.forward * moveInput.y + cameraTransform.right * moveInput.x) * airMoveSpeed;
+            Vector3 targetAirVelocity = (cameraTransform.forward * moveInput.y + cameraTransform.right * moveInput.x).normalized * airMoveSpeed;
 
-            // Gradually move current velocity toward the input direction
+            // Gradually move current velocity toward the input direction and keeps momentum
             horizontalVelocity = Vector3.Lerp(horizontalVelocity, targetAirVelocity, airControl * Time.deltaTime);
         }
 
