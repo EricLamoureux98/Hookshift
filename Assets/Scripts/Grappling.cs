@@ -95,5 +95,10 @@ public class Grappling : MonoBehaviour
         {
             ExecuteGrapple();
         }
+
+        if (context.canceled && isGrappling)
+        {
+            StopGrapple();
+        }
     }
 }

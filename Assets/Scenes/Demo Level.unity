@@ -626,6 +626,9 @@ MonoBehaviour:
   fallGravityMultiplier: 1.5
   apexGravityMultiplier: 0.3
   apexThreshold: 0.0001
+  grappleSpeed: 15
+  grapplingMomentumTime: 0.3
+  grapplePoint: {x: 0, y: 0, z: 0}
 --- !u!143 &238737668
 CharacterController:
   m_ObjectHideFlags: 0

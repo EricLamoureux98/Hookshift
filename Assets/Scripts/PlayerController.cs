@@ -4,8 +4,8 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [Header("References")]
-    CharacterController controller;
     [SerializeField] Transform cameraTransform;
+    CharacterController controller;
 
     [Header("Movement Settings")]
     [SerializeField] float walkSpeed = 8f;
@@ -23,6 +23,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float apexGravityMultiplier = 0.5f;  // Floaty at top
     [SerializeField] float apexThreshold = 2f;  // What counts as "near apex"
 
+    [Header("Grapple")]
+    [SerializeField] float grappleSpeed = 15f;
+    [SerializeField] float grapplingMomentumTime = 2f;
+
+    // Movement + gravity
     Vector2 moveInput;
     Vector3 horizontalVelocity;
     float verticalVelocity;
@@ -30,9 +35,11 @@ public class PlayerController : MonoBehaviour
     bool isSprinting;
     bool jumpRequested = false;
     
-    [SerializeField] float grappleSpeed = 15f;
+    // Grapple
+    [HideInInspector] public Vector3 grapplePoint;
     bool isGrappling;
-    public Vector3 grapplePoint;
+    float grapplingTimer;
+    Vector3 grappleVelocity;
 
     void Awake()
     {
@@ -48,9 +55,19 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         Movement();
+        
         if (isGrappling && grapplePoint != Vector3.zero)
         {
+            grapplingTimer = 0;
             PullToGrapple();
+        }
+
+        // Keep moving after cancelling grapple
+        if (!isGrappling && grappleVelocity.y > 0f && grapplingTimer < grapplingMomentumTime)
+        {
+            verticalVelocity = grappleVelocity.y;
+            horizontalVelocity = grappleVelocity;
+            grapplingTimer += Time.deltaTime;
         }
     }
 
@@ -141,7 +158,7 @@ public class PlayerController : MonoBehaviour
     void PullToGrapple()
     {
         Vector3 direction = (grapplePoint - transform.position).normalized;
-        Vector3 grappleVelocity = direction * grappleSpeed;
+        grappleVelocity = direction * grappleSpeed;
         controller.Move(grappleVelocity * Time.deltaTime);
     }
 
