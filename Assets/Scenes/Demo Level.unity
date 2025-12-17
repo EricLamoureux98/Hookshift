@@ -591,6 +591,7 @@ GameObject:
   - component: {fileID: 238737669}
   - component: {fileID: 238737670}
   - component: {fileID: 238737668}
+  - component: {fileID: 238737673}
   - component: {fileID: 238737667}
   - component: {fileID: 238737671}
   - component: {fileID: 238737672}
@@ -614,6 +615,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
   cameraTransform: {fileID: 330585546}
+  playerInput: {fileID: 238737673}
+  controller: {fileID: 238737668}
   walkSpeed: 8
   sprintSpeed: 17
   sprintTransitSpeed: 5
@@ -697,8 +700,8 @@ MonoBehaviour:
   m_ActionEvents:
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 238737667}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+      - m_Target: {fileID: 238737673}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: Move
         m_Mode: 0
         m_Arguments:
@@ -713,8 +716,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Move[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 238737667}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+      - m_Target: {fileID: 238737673}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: Jump
         m_Mode: 0
         m_Arguments:
@@ -729,8 +732,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Jump[/Keyboard/space]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 238737667}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+      - m_Target: {fileID: 238737673}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: Sprint
         m_Mode: 0
         m_Arguments:
@@ -745,8 +748,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Sprint[/Keyboard/leftShift]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 238737672}
-        m_TargetAssemblyTypeName: Grappling, Assembly-CSharp
+      - m_Target: {fileID: 238737673}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: Grapple
         m_Mode: 0
         m_Arguments:
@@ -761,8 +764,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Grapple[/Mouse/leftButton]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 238737672}
-        m_TargetAssemblyTypeName: Grappling, Assembly-CSharp
+      - m_Target: {fileID: 238737673}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: PullInGrapple
         m_Mode: 0
         m_Arguments:
@@ -805,6 +808,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40be79b5644eee141a30657dadc5d3ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Grappling
+  playerController: {fileID: 238737667}
+  playerInput: {fileID: 238737673}
   cameraTransform: {fileID: 332741176}
   firePoint: {fileID: 22505002}
   whatCanBeGrappled:
@@ -814,6 +819,18 @@ MonoBehaviour:
   maxGrappleDistance: 25
   grappleDelayTime: 0.25
   grapplingCooldown: 1
+--- !u!114 &238737673
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 238737666}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0b13eb09be7951e499295b91ee5633ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerInput
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0

@@ -5,13 +5,15 @@ public class PlayerController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] Transform cameraTransform;
-    CharacterController controller;
+    [SerializeField] PlayerInput playerInput;
+    [SerializeField] CharacterController controller;
+    PlayerState playerState;
 
     [Header("Movement Settings")]
     [SerializeField] float walkSpeed = 8f;
     [SerializeField] float sprintSpeed = 17f;
     [SerializeField] float sprintTransitSpeed = 5f;
-    [SerializeField] float coyoteTime = 0.2f;
+    [SerializeField] float coyoteTime = 0.2f; // <-- IMPLEMENT
 
     [Header("Jump Feel")]
     [SerializeField] float gravity = 20f;
@@ -41,11 +43,6 @@ public class PlayerController : MonoBehaviour
     float grapplingTimer;
     Vector3 grappleVelocity;
 
-    void Awake()
-    {
-        controller = GetComponent<CharacterController>();
-    }
-
     void Start()
     {
         currentSpeed = walkSpeed;
@@ -54,6 +51,7 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
+        ReceivePlayerInput();
         Movement();
         
         if (isGrappling && grapplePoint != Vector3.zero)
@@ -69,6 +67,30 @@ public class PlayerController : MonoBehaviour
             horizontalVelocity = grappleVelocity;
             grapplingTimer += Time.deltaTime;
         }
+    }
+
+    void ReceivePlayerInput()
+    {
+        isSprinting = playerInput.SprintHeld;
+        moveInput = playerInput.MoveInput;
+
+        if (!isGrappling)
+        {
+            if (playerInput.JumpPressed)
+            {
+                jumpRequested = true;
+            }
+
+            if (playerInput.JumpReleased && verticalVelocity > 0)
+            {
+                verticalVelocity *= variableJump;
+            }
+        }
+    }
+
+    void DetermineState()
+    {
+        
     }
 
     void Movement()
@@ -162,37 +184,20 @@ public class PlayerController : MonoBehaviour
         controller.Move(grappleVelocity * Time.deltaTime);
     }
 
-    public void Move(InputAction.CallbackContext context)
+    public void ChangeState(PlayerState newState)
     {
-        moveInput = context.ReadValue<Vector2>();
+        if (newState == playerState) return;
     }
+}
 
-    public void Jump(InputAction.CallbackContext context)
-    {
-        if (!isGrappling)
-        {
-            if (context.performed)
-            {
-                jumpRequested = true;
-            }
+public enum PlayerState
+{
+    Grounded,
+    Airbone,
+    Grappling
 
-            if (context.canceled && verticalVelocity > 0)
-            {
-                verticalVelocity *= variableJump;
-            }
-        }
-    }
-
-    public void Sprint(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {  
-            isSprinting = true;       
-        }
-
-        if (context.canceled)
-        {
-            isSprinting = false;
-        }
-    }
+    // ----- Ideas for future states -----
+    //Knockback
+    //WallRunning
+    //Dashing
 }

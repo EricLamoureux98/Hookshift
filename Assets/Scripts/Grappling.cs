@@ -1,10 +1,12 @@
+using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
 public class Grappling : MonoBehaviour
 {
     [Header("References")]
-    PlayerController playerController;
+    [SerializeField] PlayerController playerController;
+    [SerializeField] PlayerInput playerInput;
     [SerializeField] Transform cameraTransform;
     [SerializeField] Transform firePoint;
     [SerializeField] LayerMask whatCanBeGrappled;
@@ -21,14 +23,12 @@ public class Grappling : MonoBehaviour
     float grapplingTimer;
 
     bool isGrappling;
-
-    void Start()
-    {
-        playerController = GetComponent<PlayerController>();
-    }
+    bool isPulling;
 
     void Update()
     {
+        ReceivePlayerInput();
+
         if (grapplingTimer > 0)
         {
             grapplingTimer -= Time.deltaTime;
@@ -43,18 +43,40 @@ public class Grappling : MonoBehaviour
         }
     }
 
+    void ReceivePlayerInput()
+    {
+        if (playerInput.GrapplePressedThisFrame)
+        {
+            if (isGrappling || grapplingTimer > 0) return;
+
+            Debug.Log("Grapple Launch input received");
+            StartGrapple();
+        }
+
+        if (isGrappling && playerInput.GrapplePullHeld)
+        {
+            if (!isPulling)
+            {
+                Debug.Log("Grapple pull input received");
+                isPulling = true;
+            }
+
+            ExecuteGrapple();
+        }
+
+        if (isGrappling && isPulling && !playerInput.GrapplePullHeld)
+        {
+            Debug.Log("Grapple pull input cancelled");
+            StopGrapple();
+        }
+    }
+
     void StartGrapple()
     {
-        if (grapplingTimer > 0) return;
-
-        isGrappling = true;
-
         RaycastHit hit;
         if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, maxGrappleDistance, whatCanBeGrappled))
         {
             grapplePoint = hit.point;
-
-            //Invoke(nameof(ExecuteGrapple), grappleDelayTime);
         }
         else
         {
@@ -62,7 +84,9 @@ public class Grappling : MonoBehaviour
             Invoke(nameof(StopGrapple), grappleDelayTime);
         }
 
+        isGrappling = true;
         lineRenderer.enabled = true;
+        lineRenderer.SetPosition(0, firePoint.position);
         lineRenderer.SetPosition(1, grapplePoint);
     }
 
@@ -76,29 +100,9 @@ public class Grappling : MonoBehaviour
     {
         playerController.SetGrapplingState(false);
         isGrappling = false;
+        isPulling = false;
 
         grapplingTimer = grapplingCooldown;
         lineRenderer.enabled = false;
-    }
-
-    public void Grapple(InputAction.CallbackContext context)
-    {
-        if (context.performed)
-        {
-            StartGrapple();
-        }
-    }
-
-    public void PullInGrapple(InputAction.CallbackContext context)
-    {
-        if (context.performed && isGrappling)
-        {
-            ExecuteGrapple();
-        }
-
-        if (context.canceled && isGrappling)
-        {
-            StopGrapple();
-        }
     }
 }
