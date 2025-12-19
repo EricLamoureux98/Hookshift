@@ -35,72 +35,80 @@ public class PlayerController : MonoBehaviour
     float verticalVelocity;
     float currentSpeed;
     bool isSprinting;
+    bool wasGrounded;
     bool jumpRequested = false;
     
     // Grapple
     [HideInInspector] public Vector3 grapplePoint;
-    bool isGrappling;
-    float grapplingTimer;
+    bool isGrappling = false;
+    float grappleMomentumTimer;
     Vector3 grappleVelocity;
 
-    void Start()
-    {
-        currentSpeed = walkSpeed;
-        isGrappling = false;
-    }
 
     void Update()
     {
-        ReceivePlayerInput();
-        Movement();
-        
-        if (isGrappling && grapplePoint != Vector3.zero)
+        bool groundedThisFrame = controller.isGrounded;
+
+        ReadInput();
+        DetermineState();
+
+        switch (playerState)
         {
-            grapplingTimer = 0;
-            PullToGrapple();
+            case PlayerState.Grounded:
+                HandleGrounded();
+                break;
+
+            case PlayerState.Airborne:
+                HandleAirborne();
+                break;
+
+            case PlayerState.Grappling:
+                HandleGrappling();
+                break;
         }
 
-        // Keep moving after cancelling grapple
-        if (!isGrappling && grappleVelocity.y > 0f && grapplingTimer < grapplingMomentumTime)
-        {
-            verticalVelocity = grappleVelocity.y;
-            horizontalVelocity = grappleVelocity;
-            grapplingTimer += Time.deltaTime;
-        }
+        CalculateHorizontalVelocity();
+        ApplyMovement();
+
+        wasGrounded = groundedThisFrame;
     }
 
-    void ReceivePlayerInput()
+    void ReadInput()
     {
         isSprinting = playerInput.SprintHeld;
         moveInput = playerInput.MoveInput;
-
-        if (!isGrappling)
-        {
-            if (playerInput.JumpPressed)
-            {
-                jumpRequested = true;
-            }
-
-            if (playerInput.JumpReleased && verticalVelocity > 0)
-            {
-                verticalVelocity *= variableJump;
-            }
-        }
     }
 
     void DetermineState()
     {
-        
+        if (isGrappling)
+        {
+            ChangeState(PlayerState.Grappling);
+            return;
+        }
+
+        if (playerState == PlayerState.Grounded && !controller.isGrounded && wasGrounded)
+        {
+            ChangeState(PlayerState.Airborne);
+            return;
+        }
+
+        if (playerState == PlayerState.Airborne && controller.isGrounded && !wasGrounded)
+        {
+            ChangeState(PlayerState.Grounded);
+            return;
+        }
+
     }
 
-    void Movement()
+    void ApplyMovement()
     {
-        if (isGrappling) return; 
-        GroundMovement();
-        SprintMovement();
+        Vector3 finalMove = new Vector3(horizontalVelocity.x, verticalVelocity, horizontalVelocity.z);
+
+        controller.Move(finalMove * Time.deltaTime);
     }
 
-    void GroundMovement()
+    void CalculateHorizontalVelocity()
     {
         if (controller.isGrounded)
         {
@@ -115,14 +123,6 @@ public class PlayerController : MonoBehaviour
             horizontalVelocity = Vector3.Lerp(horizontalVelocity, targetAirVelocity, airControl * Time.deltaTime);
         }
 
-        float verticalMove = ApplyGravity();
-
-        Vector3 finalMove = new Vector3(horizontalVelocity.x, verticalMove, horizontalVelocity.z);
-        controller.Move(finalMove * Time.deltaTime);
-    }
-
-    void SprintMovement()
-    {
         if (isSprinting)
         {
             currentSpeed = Mathf.Lerp(currentSpeed, sprintSpeed, sprintTransitSpeed * Time.deltaTime);  
@@ -131,69 +131,137 @@ public class PlayerController : MonoBehaviour
         {
             currentSpeed = Mathf.Lerp(currentSpeed, walkSpeed, sprintTransitSpeed * Time.deltaTime);  
         }
-    }    
+    }
 
-    float ApplyGravity()
-    {
-        if (isGrappling) verticalVelocity *= 0;
+    void ApplyGravity()
+    {        
+        float gravityToApply = gravity;
 
-        if (jumpRequested && controller.isGrounded)
+        if (Mathf.Abs(verticalVelocity) < apexThreshold) // Reduced gravity when near jump apex
         {
-            ApplyJump();
-            return verticalVelocity;
+            gravityToApply *= apexGravityMultiplier;
+        }
+        else if (verticalVelocity < 0) // Increased gravity while falling
+        {
+            gravityToApply *= fallGravityMultiplier;
         }
 
-        if (controller.isGrounded && verticalVelocity < 0)
-        {
-            verticalVelocity = -2f;
-        }
-        else
-        {
-            float gravityToApply = gravity;
-
-            if (Mathf.Abs(verticalVelocity) < apexThreshold) // Reduced gravity when near jump apex
-            {
-                gravityToApply *= apexGravityMultiplier;
-            }
-            else if (verticalVelocity < 0) // Increased gravity while falling
-            {
-                gravityToApply *= fallGravityMultiplier;
-            }
-
-            verticalVelocity -= gravityToApply * Time.deltaTime;
-        }
-
-        return verticalVelocity;
+        verticalVelocity -= gravityToApply * Time.deltaTime;       
     }
 
     void ApplyJump()
     {
+        ChangeState(PlayerState.Airborne);
         jumpRequested = false;
         verticalVelocity = Mathf.Sqrt(jumpHeight * gravity * 2);
     }
 
-    public void SetGrapplingState(bool grappling)
+    void ConsumeJumpInput()
     {
-        isGrappling = grappling;
+        
     }
 
-    void PullToGrapple()
+    void UpdateGrappleVelocity()
     {
         Vector3 direction = (grapplePoint - transform.position).normalized;
         grappleVelocity = direction * grappleSpeed;
-        controller.Move(grappleVelocity * Time.deltaTime);
+
+        horizontalVelocity = grappleVelocity;
+        verticalVelocity = grappleVelocity.y;
+    }
+
+    void ApplyGrappleMomentum()
+    {
+        // Keep moving after cancelling grapple
+        if (!isGrappling && grappleVelocity.y > 0f && grappleMomentumTimer < grapplingMomentumTime)
+        {
+            verticalVelocity = grappleVelocity.y;
+            horizontalVelocity = grappleVelocity;
+            grappleMomentumTimer += Time.deltaTime;
+        }
+    }
+
+    void HandleGrounded()
+    {        
+        //wasGrounded = true;
+        verticalVelocity = -2f;
+
+        if (playerInput.JumpPressed)
+        {
+            jumpRequested = true;
+        }
+
+        if (jumpRequested)
+        {
+            ApplyJump();
+        }
+    }
+
+    void HandleAirborne()
+    {
+        ApplyGravity();
+        //wasGrounded = false;
+
+        if (playerInput.JumpReleased && verticalVelocity > 0)
+        {
+            verticalVelocity *= variableJump;
+        }
+    }
+
+    void HandleGrappling()
+    {
+        verticalVelocity *= 0;
+
+        if (isGrappling && grapplePoint != Vector3.zero)
+        {
+            grappleMomentumTimer = 0;
+            UpdateGrappleVelocity();
+        }
+        else
+        {
+            ChangeState(PlayerState.Airborne);
+        }
+
+        ApplyGrappleMomentum();
     }
 
     public void ChangeState(PlayerState newState)
     {
         if (newState == playerState) return;
+
+        Debug.Log($"{playerState} → {newState}");
+        playerState = newState;
+
+        if (newState == PlayerState.Grounded)
+        {
+            verticalVelocity = -2f;
+            grappleVelocity = Vector3.zero;
+            grappleMomentumTimer = 0f;
+            HandleGrounded();
+        }
+
+        if (newState == PlayerState.Airborne)
+        {
+            HandleAirborne();
+        }
+
+        if (newState == PlayerState.Grappling)
+        {
+            HandleGrappling();
+        }
+    }
+
+    // See if can remove later
+    public void SetGrapplingState(bool grappling)
+    {
+        isGrappling = grappling;
     }
 }
 
 public enum PlayerState
 {
     Grounded,
-    Airbone,
+    Airborne,
     Grappling
 
     // ----- Ideas for future states -----

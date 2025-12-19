@@ -49,7 +49,7 @@ public class Grappling : MonoBehaviour
         {
             if (isGrappling || grapplingTimer > 0) return;
 
-            Debug.Log("Grapple Launch input received");
+            //Debug.Log("Grapple Launch input received");
             StartGrapple();
         }
 
@@ -57,7 +57,7 @@ public class Grappling : MonoBehaviour
         {
             if (!isPulling)
             {
-                Debug.Log("Grapple pull input received");
+                //Debug.Log("Grapple pull input received");
                 isPulling = true;
             }
 
@@ -66,7 +66,7 @@ public class Grappling : MonoBehaviour
 
         if (isGrappling && isPulling && !playerInput.GrapplePullHeld)
         {
-            Debug.Log("Grapple pull input cancelled");
+            //Debug.Log("Grapple pull input cancelled");
             StopGrapple();
         }
     }
