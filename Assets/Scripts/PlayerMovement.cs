@@ -8,6 +8,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float groundDrag;
 
     [Header("Jumping")]
+    [SerializeField] float gravityMultiplier = 2f;
     [SerializeField] float jumpForce;
     [SerializeField] float jumpCooldown;
     [SerializeField] float airMultiplier;
@@ -15,7 +16,7 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Ground Check")]
     [SerializeField] float playerHeight;
-    [SerializeField] LayerMask whatIsGround;
+    //[SerializeField] LayerMask whatIsGround;
     bool grounded;
 
     [SerializeField] Transform orientation;
@@ -33,7 +34,7 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
                                                                 // Half of players height plus a bit for collision
-        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f, whatIsGround);
+        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f);
 
         SpeedControl();
 
@@ -51,6 +52,13 @@ public class PlayerMovement : MonoBehaviour
     void FixedUpdate()
     {
         MovePlayer();
+
+
+        // Stronger gravity while falling
+        if (rb.linearVelocity.y < 0)
+        {
+            rb.AddForce(Physics.gravity * (gravityMultiplier - 1f), ForceMode.Acceleration);            
+        }
     }
 
     void MovePlayer()
@@ -75,7 +83,7 @@ public class PlayerMovement : MonoBehaviour
         if (flatVel.magnitude > moveSpeed)
         {
             Vector3 limitedVel = flatVel.normalized * moveSpeed;
-            rb.linearVelocity = new Vector3(limitedVel.x, limitedVel.y, limitedVel.z);
+            rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
         }
     }
 
