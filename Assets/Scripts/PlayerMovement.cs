@@ -3,9 +3,14 @@ using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
+    [SerializeField] Transform orientation;
+
     [Header("Movement")]
-    [SerializeField] float moveSpeed;
     [SerializeField] float groundDrag;
+    [SerializeField] float walkSpeed;
+    [SerializeField] float sprintSpeed;
+    float moveSpeed;
+    bool isSprinting;
 
     [Header("Jumping")]
     [SerializeField] float gravityMultiplier = 2f;
@@ -14,32 +19,46 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float airMultiplier;
     bool readyToJump;
 
+    [Header("Crouching")]
+    [SerializeField] float crouchSpeed;
+    [SerializeField] float crouchYScale;
+    float startYScale;
+    bool isCrouching;
+
     [Header("Ground Check")]
     [SerializeField] float playerHeight;
-    //[SerializeField] LayerMask whatIsGround;
-    bool grounded;
+    bool isGrounded;
 
-    [SerializeField] Transform orientation;
+    [Header("Slope Handling")]
+    [SerializeField] float maxSlopeAngle;
+    RaycastHit slopeHit;
+    bool exitingSlope;
 
     Vector3 moveDirection;
     Vector2 moveInput;
     Rigidbody rb;
 
+    [HideInInspector] public MovementState state;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         readyToJump = true;
+
+        startYScale = transform.localScale.y;
     }
 
     void Update()
     {
                                                                 // Half of players height plus a bit for collision
-        grounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f);
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, playerHeight * 0.5f + 0.2f);
 
         SpeedControl();
+        StateHandler();
+        ApplyCrouch();
 
         // Handle drag
-        if (grounded)
+        if (isGrounded)
         {
             rb.linearDamping = groundDrag;
         }
@@ -53,7 +72,6 @@ public class PlayerMovement : MonoBehaviour
     {
         MovePlayer();
 
-
         // Stronger gravity while falling
         if (rb.linearVelocity.y < 0)
         {
@@ -63,32 +81,64 @@ public class PlayerMovement : MonoBehaviour
 
     void MovePlayer()
     {
+        if (OnSlope() && isGrounded && moveInput == Vector2.zero)
+        {
+            rb.linearVelocity = Vector3.zero;
+        }
+
         moveDirection = orientation.forward * moveInput.y + orientation.right * moveInput.x;
 
-        if (grounded)
+        // on slope
+        if (OnSlope() && !exitingSlope)
+        {
+            rb.AddForce(GetSlopeMoveDirection() * moveSpeed * 20f, ForceMode.Force);
+
+            if (rb.linearVelocity.y > 0)
+            {
+                rb.AddForce(Vector3.down * 80f, ForceMode.Force);
+            }
+        }
+
+        if (isGrounded)
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
         }
-        else if (!grounded) // Air control
+        else if (!isGrounded) // Air control
         {
             rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
         }
+
+        // Turn off gravity while on slope
+        rb.useGravity = !(OnSlope() && isGrounded);
     }
 
     void SpeedControl()
     {
-        Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-
-        // Limit velocity
-        if (flatVel.magnitude > moveSpeed)
+        if (OnSlope() && !exitingSlope)
         {
-            Vector3 limitedVel = flatVel.normalized * moveSpeed;
-            rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
+            if (rb.linearVelocity.magnitude > moveSpeed)
+            {
+                rb.linearVelocity = rb.linearVelocity.normalized * moveSpeed;
+            }
         }
+        else
+        {
+            Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+
+            // Limit velocity
+            if (flatVel.magnitude > moveSpeed)
+            {
+                Vector3 limitedVel = flatVel.normalized * moveSpeed;
+                rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
+            }
+        }
+
     }
 
     void ApplyJump()
     {
+        exitingSlope = true;
+
         // Reset y velocity - Makes jump height consistent
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
 
@@ -98,6 +148,63 @@ public class PlayerMovement : MonoBehaviour
     void ResetJump()
     {
         readyToJump = true;
+        exitingSlope = false;
+    }
+
+    void ApplyCrouch()
+    {     
+        if (isCrouching)
+        {
+            transform.localScale = new Vector3(transform.localScale.x, crouchYScale, transform.localScale.z);
+        }
+        else
+        {
+            transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
+        }
+    }
+
+    bool OnSlope()
+    {
+        if(Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
+        {
+            float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
+            return angle < maxSlopeAngle && angle != 0;
+        }
+
+        return false;
+    }
+
+    Vector3 GetSlopeMoveDirection()
+    {
+        // For walking up slopes
+        return Vector3.ProjectOnPlane(moveDirection, slopeHit.normal).normalized;
+    }
+
+
+
+    void StateHandler()
+    {
+        if (isGrounded && isSprinting)
+        {
+            state = MovementState.sprinting;
+            moveSpeed = sprintSpeed;
+        }
+        else if (isGrounded)
+        {
+            state = MovementState.walking;
+            moveSpeed = walkSpeed;
+        }
+        else
+        {
+            state = MovementState.air;
+        }
+
+        if (isGrounded && isCrouching)
+        {
+            state = MovementState.crouching;
+            moveSpeed = crouchSpeed;
+        }
+        //Debug.Log($"State: {state}, MoveSpeed: {moveSpeed}, Crouching: {isCrouching}");
     }
 
     public void Move(InputAction.CallbackContext context)
@@ -107,11 +214,51 @@ public class PlayerMovement : MonoBehaviour
 
     public void Jump(InputAction.CallbackContext context)
     {
-        if (context.performed && readyToJump && grounded)
+        if (context.performed && readyToJump && isGrounded)
         {
             readyToJump = false;
             ApplyJump();
             Invoke(nameof(ResetJump), jumpCooldown);
         }
     }
+
+    public void Sprint(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            isSprinting = true;
+        }
+
+        if (context.canceled)
+        {
+            isSprinting = false;
+        }
+    }
+
+    public void Crouch(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            isCrouching = true;
+            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+        }
+
+        if (context.canceled)
+        {
+            isCrouching = false;
+        }
+    }
+
+    public enum MovementState
+    {
+        walking,
+        sprinting,
+        crouching,
+        air
+    }
 }
+
+// NOTES
+//
+//
+// - Add a way to detect object above player before stopping a crouch

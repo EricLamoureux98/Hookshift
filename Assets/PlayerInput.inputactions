@@ -43,6 +43,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Crouch",
+                    "type": "Button",
+                    "id": "d83e2b5a-272c-4d9b-9c29-b4eed9e3514a",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Fire Grapple",
                     "type": "Button",
                     "id": "ed970510-a041-4c03-8e1d-6e9f1fb4366e",
@@ -213,6 +222,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Pull In Grapple",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "9acd8d95-fbb8-469b-bee0-96765011a524",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Crouch",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
