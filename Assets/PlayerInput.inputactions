@@ -52,6 +52,15 @@
                     "initialStateCheck": false
                 },
                 {
+                    "name": "Slide",
+                    "type": "Button",
+                    "id": "d59c70b0-e330-4eb7-b981-1ee45a1e9254",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
                     "name": "Fire Grapple",
                     "type": "Button",
                     "id": "ed970510-a041-4c03-8e1d-6e9f1fb4366e",
@@ -228,11 +237,22 @@
                 {
                     "name": "",
                     "id": "9acd8d95-fbb8-469b-bee0-96765011a524",
-                    "path": "<Keyboard>/c",
+                    "path": "<Keyboard>/ctrl",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
                     "action": "Crouch",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "c1219c97-b716-4a46-9cab-2f3ab692a0e2",
+                    "path": "<Keyboard>/c",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Slide",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }
