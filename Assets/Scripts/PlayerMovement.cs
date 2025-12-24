@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Specialized;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -45,6 +46,9 @@ public class PlayerMovement : MonoBehaviour
     Rigidbody rb;
     
     public Vector2 moveInput {get; private set;}
+    public bool activeGrapple;
+    Vector3 velocityToSet;
+    bool enableMovementOnNextTouch;
 
     [HideInInspector] public MovementState state;
 
@@ -66,7 +70,7 @@ public class PlayerMovement : MonoBehaviour
         ApplyCrouch();
 
         // Handle drag
-        if (isGrounded)
+        if (isGrounded && !activeGrapple)
         {
             rb.linearDamping = groundDrag;
         }
@@ -89,6 +93,8 @@ public class PlayerMovement : MonoBehaviour
 
     void MovePlayer()
     {
+        if (activeGrapple) return;
+
         if (OnSlope() && isGrounded && moveInput == Vector2.zero)
         {
             rb.linearVelocity = Vector3.zero;
@@ -122,6 +128,8 @@ public class PlayerMovement : MonoBehaviour
 
     void SpeedControl()
     {
+        if (activeGrapple) return; 
+
         if (OnSlope() && !exitingSlope)
         {
             if (rb.linearVelocity.magnitude > moveSpeed)
@@ -140,7 +148,6 @@ public class PlayerMovement : MonoBehaviour
                 rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
             }
         }
-
     }
 
     void ApplyJump()
@@ -168,6 +175,22 @@ public class PlayerMovement : MonoBehaviour
         else
         {
             transform.localScale = new Vector3(transform.localScale.x, startYScale, transform.localScale.z);
+        }
+    }
+
+    public void ResetRestrictions()
+    {
+        activeGrapple = false;
+    }
+
+    void OnCollisionEnter(Collision collision)
+    {
+        if (enableMovementOnNextTouch)
+        {
+            enableMovementOnNextTouch = false;
+            ResetRestrictions();
+
+            GetComponent<GrapplingV2>().StopGrapple();
         }
     }
 
@@ -202,6 +225,33 @@ public class PlayerMovement : MonoBehaviour
         }
 
         moveSpeed = desiredMoveSpeed;
+    }
+
+    public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
+    {
+        activeGrapple = true; 
+        velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
+        Invoke(nameof(SetVelocity), 0.1f);
+
+        Invoke(nameof(ResetRestrictions), 3f);
+    }
+
+    void SetVelocity()
+    {
+        enableMovementOnNextTouch = true;
+        rb.linearVelocity = velocityToSet;
+    }
+
+    public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
+    {
+        float gravity = Physics.gravity.y;
+        float displacementY = endPoint.y - startPoint.y;
+        Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
+
+        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
+        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity) + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
+
+        return velocityXZ + velocityY;
     }
 
     void StateHandler()
