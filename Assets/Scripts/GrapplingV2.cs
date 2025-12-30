@@ -22,7 +22,7 @@ public class GrapplingV2 : MonoBehaviour
     [SerializeField] float grapplingCd;
     float grapplingCdTimer;
 
-    bool isGrappling;
+    bool isLaunchingGrapple;
     bool isPulling;
 
     void Update()
@@ -35,7 +35,7 @@ public class GrapplingV2 : MonoBehaviour
 
     void LateUpdate()
     {
-        if (isGrappling)
+        if (isLaunchingGrapple)
         {
             lineRenderer.SetPosition(0, firePoint.position);
         }
@@ -45,7 +45,7 @@ public class GrapplingV2 : MonoBehaviour
     {
         if (grapplingCdTimer > 0) return;
 
-        isGrappling = true;
+        isLaunchingGrapple = true;
 
         RaycastHit hit;
         if (Physics.Raycast(cameraTransform.position, cameraTransform.forward, out hit, maxGrappleDistance, whatCanBeGrappled))
@@ -66,6 +66,7 @@ public class GrapplingV2 : MonoBehaviour
 
     void ExecuteGrapple()
     {
+        // This code launches the player and lets physics handle the arc
         Vector3 lowestPoint = new Vector3(transform.position.x, transform.position.y - 1f, transform.position.z);
 
         float grapplePointRelativeYPos = grapplePoint.y - lowestPoint.y;
@@ -84,7 +85,7 @@ public class GrapplingV2 : MonoBehaviour
     public void StopGrapple()
     {
         //playerController.SetGrapplingState(false);
-        isGrappling = false;
+        isLaunchingGrapple = false;
         isPulling = false;
 
         grapplingCdTimer = grapplingCd;

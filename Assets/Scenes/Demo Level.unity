@@ -22990,6 +22990,7 @@ MonoBehaviour:
   crouchYScale: 0.5
   playerHeight: 2
   maxSlopeAngle: 40
+  activeGrapple: 0
   state: 0
 --- !u!114 &1264319591
 MonoBehaviour:
@@ -23041,6 +23042,7 @@ MonoBehaviour:
   lineRenderer: {fileID: 45862456}
   maxGrappleDistance: 25
   grappleDelayTime: 0.25
+  overshootYAxis: 2
   grapplingCd: 1
 --- !u!43 &1269954270
 Mesh:

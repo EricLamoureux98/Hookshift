@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Specialized;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -46,7 +45,10 @@ public class PlayerMovement : MonoBehaviour
     Rigidbody rb;
     
     public Vector2 moveInput {get; private set;}
-    public bool activeGrapple;
+    public bool IsOnSlope {get; private set;}
+    public Vector3 SlopeNormal { get; private set;}
+
+    public bool movementLockedByGrapple;
     Vector3 velocityToSet;
     bool enableMovementOnNextTouch;
 
@@ -70,7 +72,7 @@ public class PlayerMovement : MonoBehaviour
         ApplyCrouch();
 
         // Handle drag
-        if (isGrounded && !activeGrapple)
+        if (isGrounded && !movementLockedByGrapple)
         {
             rb.linearDamping = groundDrag;
         }
@@ -93,11 +95,11 @@ public class PlayerMovement : MonoBehaviour
 
     void MovePlayer()
     {
-        if (activeGrapple) return;
+        if (movementLockedByGrapple) return;
 
         if (OnSlope() && isGrounded && moveInput == Vector2.zero)
         {
-            rb.linearVelocity = Vector3.zero;
+            rb.linearVelocity = Vector3.zero; // Directly setting velocity – overrides physics
         }
 
         moveDirection = orientation.forward * moveInput.y + orientation.right * moveInput.x;
@@ -128,7 +130,7 @@ public class PlayerMovement : MonoBehaviour
 
     void SpeedControl()
     {
-        if (activeGrapple) return; 
+        if (movementLockedByGrapple) return; 
 
         if (OnSlope() && !exitingSlope)
         {
@@ -155,7 +157,7 @@ public class PlayerMovement : MonoBehaviour
         exitingSlope = true;
 
         // Reset y velocity - Makes jump height consistent
-        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
+        rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z); // Directly setting velocity – overrides physics
 
         rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
     }
@@ -180,7 +182,7 @@ public class PlayerMovement : MonoBehaviour
 
     public void ResetRestrictions()
     {
-        activeGrapple = false;
+        movementLockedByGrapple = false;
     }
 
     void OnCollisionEnter(Collision collision)
@@ -199,10 +201,16 @@ public class PlayerMovement : MonoBehaviour
         if(Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
         {
             float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
-            return angle < maxSlopeAngle && angle != 0;
+            IsOnSlope = angle < maxSlopeAngle && angle != 0;
+            SlopeNormal = slopeHit.normal;
+        }
+        else
+        {
+            IsOnSlope = false;
+            SlopeNormal = Vector3.up;
         }
 
-        return false;
+        return IsOnSlope;
     }
 
     public Vector3 GetSlopeMoveDirection(Vector3 direction)
@@ -229,29 +237,17 @@ public class PlayerMovement : MonoBehaviour
 
     public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
     {
-        activeGrapple = true; 
-        velocityToSet = CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
+        movementLockedByGrapple = true; 
+        velocityToSet = BallisticTrajectory.CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
         Invoke(nameof(SetVelocity), 0.1f);
 
-        Invoke(nameof(ResetRestrictions), 3f);
+        Invoke(nameof(ResetRestrictions), 3f); // Fallback to allow player movement
     }
 
     void SetVelocity()
     {
         enableMovementOnNextTouch = true;
-        rb.linearVelocity = velocityToSet;
-    }
-
-    public Vector3 CalculateJumpVelocity(Vector3 startPoint, Vector3 endPoint, float trajectoryHeight)
-    {
-        float gravity = Physics.gravity.y;
-        float displacementY = endPoint.y - startPoint.y;
-        Vector3 displacementXZ = new Vector3(endPoint.x - startPoint.x, 0f, endPoint.z - startPoint.z);
-
-        Vector3 velocityY = Vector3.up * Mathf.Sqrt(-2 * gravity * trajectoryHeight);
-        Vector3 velocityXZ = displacementXZ / (Mathf.Sqrt(-2 * trajectoryHeight / gravity) + Mathf.Sqrt(2 * (displacementY - trajectoryHeight) / gravity));
-
-        return velocityXZ + velocityY;
+        rb.linearVelocity = velocityToSet; // Directly setting velocity – overrides physics
     }
 
     void StateHandler()

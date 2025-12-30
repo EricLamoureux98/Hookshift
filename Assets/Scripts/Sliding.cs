@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -18,6 +17,8 @@ public class Sliding : MonoBehaviour
     float slideTimer;
     //bool isSliding;
 
+    private SlideState slideState;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
@@ -34,6 +35,18 @@ public class Sliding : MonoBehaviour
         }
     }
 
+    void DetermineSlideState()
+    {
+        if (!playerMovement.IsOnSlope || rb.linearVelocity.y > -0.1f)
+        {
+            slideState = SlideState.Flat;
+        }
+        else
+        {
+            slideState = SlideState.Downhill;
+        }
+    }
+
     void StartSlide()
     {
         playerMovement.isSliding = true;
@@ -46,25 +59,40 @@ public class Sliding : MonoBehaviour
 
     void SlidingMovement()
     {
-        Vector3 inputDirection = orientation.forward * playerMovement.moveInput.y + orientation.right * playerMovement.moveInput.x;
+        DetermineSlideState();        
 
-        // Normal slide
-        if (!playerMovement.OnSlope() || rb.linearVelocity.y > -0.1f)
+        switch (slideState)
         {
-            rb.AddForce(inputDirection.normalized * slideForce, ForceMode.Force);
+            case SlideState.Flat:
+                ApplyFlatSlide();
+                break;
 
-            slideTimer -= Time.deltaTime;
-        }
-        else // Sliding down a slope
-        {
-            rb.AddForce(playerMovement.GetSlopeMoveDirection(inputDirection) * slideForce, ForceMode.Force);
-            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
-        }        
+            case SlideState.Downhill:
+                ApplyDownhillSlide();
+                break;
+        }      
 
         if (slideTimer <= 0)
         {
             StopSlide();
         }
+    }
+
+    void ApplyFlatSlide()
+    {
+        Vector3 inputDirection = orientation.forward * playerMovement.moveInput.y + orientation.right * playerMovement.moveInput.x;
+
+        rb.AddForce(inputDirection.normalized * slideForce, ForceMode.Force);
+        slideTimer -= Time.deltaTime;
+    }
+
+    void ApplyDownhillSlide()
+    {
+        Vector3 inputDirection = orientation.forward * playerMovement.moveInput.y + orientation.right * playerMovement.moveInput.x;
+
+        rb.AddForce(Vector3.ProjectOnPlane(inputDirection, playerMovement.SlopeNormal).normalized * slideForce, ForceMode.Force);
+        //rb.AddForce(playerMovement.GetSlopeMoveDirection(inputDirection) * slideForce, ForceMode.Force);
+        rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
     }
 
     void StopSlide()
@@ -87,8 +115,15 @@ public class Sliding : MonoBehaviour
             StopSlide();
         }
     }
+
+    private enum SlideState
+    {
+        None,
+        Flat,
+        Downhill
+    }
 }
 
 // NOTES
 //
-// Fix sliding down slopes
+// 
