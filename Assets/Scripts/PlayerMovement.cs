@@ -235,7 +235,7 @@ public class PlayerMovement : MonoBehaviour
         moveSpeed = desiredMoveSpeed;
     }
 
-    public void JumpToPosition(Vector3 targetPosition, float trajectoryHeight)
+    public void LaunchToPosition(Vector3 targetPosition, float trajectoryHeight)
     {
         movementLockedByGrapple = true; 
         velocityToSet = BallisticTrajectory.CalculateJumpVelocity(transform.position, targetPosition, trajectoryHeight);
@@ -299,6 +299,17 @@ public class PlayerMovement : MonoBehaviour
 
         lastDesiredMoveSpeed = desiredMoveSpeed;
         //Debug.Log($"State: {state}, MoveSpeed: {moveSpeed}, Crouching: {isCrouching}");
+    }
+
+    public struct LaunchRequest
+    {
+        public Vector3 targetPosition;
+        public float arcHeight;
+    }
+
+    public void Launch(LaunchRequest request)
+    {
+        LaunchToPosition(request.targetPosition, request.arcHeight);
     }
 
     public void Move(InputAction.CallbackContext context)

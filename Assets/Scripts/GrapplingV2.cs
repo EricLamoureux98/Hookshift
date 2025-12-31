@@ -15,6 +15,7 @@ public class GrapplingV2 : MonoBehaviour
     [SerializeField] float maxGrappleDistance;
     [SerializeField] float grappleDelayTime;
     [SerializeField] float overshootYAxis;
+    [SerializeField] float horizontalOvershoot = 1.5f;
 
     Vector3 grapplePoint;
 
@@ -72,12 +73,26 @@ public class GrapplingV2 : MonoBehaviour
         float grapplePointRelativeYPos = grapplePoint.y - lowestPoint.y;
         float highestPointOnArc = grapplePointRelativeYPos + overshootYAxis;
 
+        // Optional grapple overshoot
+        Vector3 horizontalDirection = grapplePoint - transform.position;
+        horizontalDirection.y = 0f;
+        horizontalDirection.Normalize();
+
+        Vector3 adjustedTarget = grapplePoint + horizontalDirection * horizontalOvershoot;
+
         if (grapplePointRelativeYPos < 0)
         {
             highestPointOnArc = overshootYAxis;
         }
 
-        playerMovement.JumpToPosition(grapplePoint, highestPointOnArc);
+        //playerMovement.LaunchToPosition(grapplePoint, highestPointOnArc);
+        PlayerMovement.LaunchRequest request = new PlayerMovement.LaunchRequest
+        {
+            targetPosition = adjustedTarget,
+            arcHeight = highestPointOnArc
+        };
+
+        playerMovement.Launch(request);
 
         Invoke(nameof(StopGrapple), 1f);
     }
