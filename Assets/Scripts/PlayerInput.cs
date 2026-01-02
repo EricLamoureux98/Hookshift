@@ -7,6 +7,7 @@ public class PlayerInput : MonoBehaviour
     public bool JumpPressed { get; private set; }
     public bool JumpReleased { get; private set; }
     public bool SprintHeld { get; private set; }
+    public bool CrouchHeld { get; private set; }
     public bool GrapplePressedThisFrame { get; private set; }
     public bool GrapplePullHeld { get; private set; }
 
@@ -46,6 +47,19 @@ public class PlayerInput : MonoBehaviour
         if (context.canceled)
         {
             SprintHeld =  false;
+        }
+    }
+
+    public void Crouch(InputAction.CallbackContext context)
+    {
+        if (context.performed)
+        {
+            CrouchHeld = true;        
+        }
+
+        if (context.canceled)
+        {
+            CrouchHeld =  false;
         }
     }
 

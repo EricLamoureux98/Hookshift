@@ -22807,7 +22807,7 @@ Transform:
   m_GameObject: {fileID: 1264319586}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 1, z: 0}
+  m_LocalPosition: {x: 6.5, y: 1, z: -39}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -22844,8 +22844,8 @@ MonoBehaviour:
   m_ActionEvents:
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1264319590}
-        m_TargetAssemblyTypeName: PlayerMovement, Assembly-CSharp
+      - m_Target: {fileID: 1264319593}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: Move
         m_Mode: 0
         m_Arguments:
@@ -22892,8 +22892,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Jump[/Keyboard/space]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1264319590}
-        m_TargetAssemblyTypeName: PlayerMovement, Assembly-CSharp
+      - m_Target: {fileID: 1264319593}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: Sprint
         m_Mode: 0
         m_Arguments:
@@ -22928,8 +22928,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Pull In Grapple[/Mouse/rightButton]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1264319590}
-        m_TargetAssemblyTypeName: PlayerMovement, Assembly-CSharp
+      - m_Target: {fileID: 1264319593}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: Crouch
         m_Mode: 0
         m_Arguments:
@@ -22976,10 +22976,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   orientation: {fileID: 1364436013}
+  playerInput: {fileID: 1264319593}
   groundDrag: 5
   walkSpeed: 7
   sprintSpeed: 12
   slideSpeed: 30
+  movementLockedByGrapple: 0
   speedTransitionThreshold: 6
   isSliding: 0
   gravityMultiplier: 2
@@ -22990,7 +22992,6 @@ MonoBehaviour:
   crouchYScale: 0.5
   playerHeight: 2
   maxSlopeAngle: 40
-  movementLockedByGrapple: 0
   state: 0
 --- !u!114 &1264319591
 MonoBehaviour:
