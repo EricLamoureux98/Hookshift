@@ -3,7 +3,7 @@ using UnityEngine;
 public class Respawn : MonoBehaviour
 {
     [SerializeField] Transform rewspawnPoint;
-    [SerializeField] Transform playerOrientation;
+    //[SerializeField] Transform playerOrientation;
 
     [SerializeField] TimeTrial timeTrial;
 
@@ -22,5 +22,10 @@ public class Respawn : MonoBehaviour
         //playerOrientation.rotation = Quaternion.identity;
 
         timeTrial.ResetTimer();
+    }
+
+    public void UpdateSpawnPoint(Transform newSpawnPoint)
+    {
+        rewspawnPoint = newSpawnPoint;
     }
 }

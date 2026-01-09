@@ -8,11 +8,6 @@ public class CoinManager : MonoBehaviour
 
     int coinsCollected = 0;
 
-    // void Start()
-    // {
-    //     coinsCollected = coins.Length;
-    // }
-
     void OnValidate()
     {
         UpdateCoinText();
@@ -33,4 +28,22 @@ public class CoinManager : MonoBehaviour
     {
         coinText.text = coinsCollected.ToString() + "/" + coins.Length.ToString();
     }
+
+    // WIP not implemented yet
+    public void ResetCoins()
+    {
+        foreach (GameObject obj in coins)
+        {
+            if (obj != null)
+            {
+                obj.SetActive(true);
+            }
+        }
+    }
+    
+
+
+    // TODO: 
+
+    // Reset coins on death
 }

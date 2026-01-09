@@ -6,8 +6,7 @@ public class TimeTrial : MonoBehaviour
 {
     [SerializeField] TMP_Text timerText;
     [SerializeField] CanvasGroup timerAlpha;
-    [SerializeField] float flashDuration = 999f;
-    [SerializeField] float flashInterval = 0.05f;
+    [SerializeField] float flashInterval = 0.5f;
     
     float time;
     bool timerActive = false;
@@ -23,19 +22,6 @@ public class TimeTrial : MonoBehaviour
     void Update()
     {
         RunTimer();
-    }
-
-    void OnTriggerEnter(Collider other)
-    {
-        if (other.gameObject.tag == "Player")
-        {
-            if (timerActive) return;
-
-            StartTimer();
-            StopAllCoroutines();
-            timerAlpha.alpha = 1f;
-            //Debug.Log("Player started the timer");
-        }
     }
 
     void RunTimer()
@@ -57,24 +43,11 @@ public class TimeTrial : MonoBehaviour
         timerActive = true;
     }
 
-    IEnumerator TimerFlash()
+    public void FirstPointReached()
     {
-        float timer = 0f;
-        while (timer < flashDuration)
-        {
-            if (timerAlpha != null)
-            {
-                timerAlpha.alpha = (timerAlpha.alpha == 1f) ? 0f : 1f;
-            }
-            yield return new WaitForSeconds(flashInterval);
-            timer += flashInterval;
-        }        
-
-        // Ensures alpha is enabled at the end 
-        if (timerAlpha != null)
-        {
-            timerAlpha.alpha = 1f;
-        }
+        StartTimer();
+        StopAllCoroutines();
+        timerAlpha.alpha = 1f;
     }
 
     public void ResetTimer()
@@ -87,4 +60,22 @@ public class TimeTrial : MonoBehaviour
             StartCoroutine(TimerFlash());
         }
     }
+    
+    IEnumerator TimerFlash()
+    {
+        while (true)
+        {
+            if (timerAlpha != null)
+            {
+                // Flips value (ternary)
+                timerAlpha.alpha = (timerAlpha.alpha == 0f) ? 1f : 0f;
+            }
+            yield return new WaitForSeconds(flashInterval);
+        }        
+    }
 }
+
+
+// Todo: 
+
+// Save current time at each checkpoint so that it can be reverted after death
