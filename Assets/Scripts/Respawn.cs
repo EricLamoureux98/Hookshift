@@ -21,7 +21,7 @@ public class Respawn : MonoBehaviour
         //playerOrientation.rotation = rewspawnPoint.rotation;
         //playerOrientation.rotation = Quaternion.identity;
 
-        timeTrial.ResetTimer();
+        //timeTrial.ResetTimer();
     }
 
     public void UpdateSpawnPoint(Transform newSpawnPoint)

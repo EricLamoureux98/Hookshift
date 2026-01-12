@@ -24,7 +24,7 @@ public class GrapplingV2 : MonoBehaviour
     float grapplingCdTimer;
 
     bool isLaunchingGrapple;
-    bool isPulling;
+    //bool isPulling;
 
     void Update()
     {
@@ -73,7 +73,7 @@ public class GrapplingV2 : MonoBehaviour
         float grapplePointRelativeYPos = grapplePoint.y - lowestPoint.y;
         float highestPointOnArc = grapplePointRelativeYPos + overshootYAxis;
 
-        // Optional grapple overshoot
+        // Grapple overshoot
         Vector3 horizontalDirection = grapplePoint - transform.position;
         horizontalDirection.y = 0f;
         horizontalDirection.Normalize();
@@ -101,7 +101,7 @@ public class GrapplingV2 : MonoBehaviour
     {
         //playerController.SetGrapplingState(false);
         isLaunchingGrapple = false;
-        isPulling = false;
+        //isPulling = false;
 
         grapplingCdTimer = grapplingCd;
         lineRenderer.enabled = false;

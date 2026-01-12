@@ -6,6 +6,7 @@ public class Checkpoint : MonoBehaviour
     [SerializeField] Respawn respawn;
 
     [SerializeField] bool startCheckpoint;
+    [SerializeField] bool finishCheckpoint;
     [SerializeField] Transform respawnPoint;
 
 
@@ -15,15 +16,23 @@ public class Checkpoint : MonoBehaviour
     {
         if (other.gameObject.tag == "Player")
         {
-            if (respawnPoint != null && startCheckpoint)
+            if (respawnPoint != null)
             {
-                respawn.UpdateSpawnPoint(respawnPoint);
-                timeTrial.FirstPointReached();                
-            }
-            else if (respawnPoint != null && !startCheckpoint)
-            {
-                respawn.UpdateSpawnPoint(respawnPoint);
-            }
+                if (startCheckpoint)
+                {
+                    respawn.UpdateSpawnPoint(respawnPoint);
+                    timeTrial.FirstPointReached();                
+                }
+                else if (finishCheckpoint)
+                {
+                    respawn.UpdateSpawnPoint(respawnPoint);
+                    timeTrial.StopTimer();
+                }
+                else
+                {
+                    respawn.UpdateSpawnPoint(respawnPoint);
+                }
+            }            
         }
     }
 }

@@ -60,6 +60,12 @@ public class TimeTrial : MonoBehaviour
             StartCoroutine(TimerFlash());
         }
     }
+
+    public void StopTimer()
+    {
+        timerActive = false;
+        StartCoroutine(TimerFlash());
+    }
     
     IEnumerator TimerFlash()
     {

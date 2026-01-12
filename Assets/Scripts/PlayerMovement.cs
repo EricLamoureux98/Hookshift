@@ -9,25 +9,28 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Movement")]
     [SerializeField] float groundDrag;
+    [SerializeField] float airDrag;
     [SerializeField] float walkSpeed;
     [SerializeField] float sprintSpeed;
     [SerializeField] float slideSpeed;
+    [SerializeField] float coyoteTime;
+    [HideInInspector] public Vector2 moveInput {get; private set;}
+    [HideInInspector] public bool movementLockedByGrapple;
+    Vector3 velocityToSet;
     float moveSpeed;
     bool isSprinting;
-    public Vector2 moveInput {get; private set;}
-    public bool movementLockedByGrapple;
-    Vector3 velocityToSet;
+    float coytoteTimer;
 
     [SerializeField] float speedTransitionThreshold = 6f;
+    [HideInInspector] public bool isSliding;
     float desiredMoveSpeed;
     float lastDesiredMoveSpeed;
-    public bool isSliding;
 
     [Header("Jumping")]
     [SerializeField] float gravityMultiplier = 2f;
     [SerializeField] float jumpForce;
     [SerializeField] float jumpCooldown;
-    [SerializeField] float airMultiplier;
+    [SerializeField] float airControlSpeed;
     bool readyToJump;
 
     [Header("Crouching")]
@@ -43,10 +46,10 @@ public class PlayerMovement : MonoBehaviour
 
     [Header("Slope Handling")]
     [SerializeField] float maxSlopeAngle;
+    [HideInInspector] public bool IsOnSlope {get; private set;}
+    [HideInInspector] public Vector3 SlopeNormal { get; private set;}
     RaycastHit slopeHit;
     bool exitingSlope;
-    public bool IsOnSlope {get; private set;}
-    public Vector3 SlopeNormal { get; private set;}
 
     Vector3 moveDirection;
     Rigidbody rb;    
@@ -82,6 +85,7 @@ public class PlayerMovement : MonoBehaviour
         if(Physics.Raycast(transform.position, Vector3.down, out slopeHit, playerHeight * 0.5f + 0.3f))
         {            
             isGrounded = true;
+            coytoteTimer = 0f;
             float angle = Vector3.Angle(Vector3.up, slopeHit.normal);
 
             if(angle > 0f && angle <= maxSlopeAngle && !exitingSlope)
@@ -100,6 +104,7 @@ public class PlayerMovement : MonoBehaviour
             isGrounded = false;
             IsOnSlope = false;
             SlopeNormal = Vector3.up;
+            coytoteTimer += Time.deltaTime;
         }
     }
 
@@ -116,7 +121,7 @@ public class PlayerMovement : MonoBehaviour
         }
         else
         {
-            rb.linearDamping = 0f;
+            rb.linearDamping = airDrag;
         }
     }
 
@@ -152,12 +157,12 @@ public class PlayerMovement : MonoBehaviour
 
     void HandleAirMovement()
     {
-        rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airMultiplier, ForceMode.Force);
+        rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airControlSpeed, ForceMode.Force);
     }
     
     void MovePlayer()
     {
-        if (movementLockedByGrapple) return;
+        //if (movementLockedByGrapple) return;
 
         moveDirection = orientation.forward * moveInput.y + orientation.right * moveInput.x;
 
@@ -192,7 +197,7 @@ public class PlayerMovement : MonoBehaviour
 
     void SpeedControl()
     {
-        if (movementLockedByGrapple) return; 
+        //if (movementLockedByGrapple) return; 
 
         if (IsStandingOnSlope() && !exitingSlope)
         {
@@ -366,11 +371,14 @@ public class PlayerMovement : MonoBehaviour
 
     public void Jump(InputAction.CallbackContext context)
     {
-        if (context.performed && readyToJump && isGrounded)
+        if (context.performed && (coytoteTimer < coyoteTime || isGrounded))
         {
-            readyToJump = false;
-            ApplyJump();
-            Invoke(nameof(ResetJump), jumpCooldown);
+            if (readyToJump)
+            {
+                readyToJump = false;
+                ApplyJump();
+                Invoke(nameof(ResetJump), jumpCooldown);
+            }            
         }
     }
 
