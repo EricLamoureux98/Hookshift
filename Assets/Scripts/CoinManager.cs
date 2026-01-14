@@ -10,6 +10,7 @@ public class CoinManager : MonoBehaviour
 
     void OnValidate()
     {
+        FindCoins();
         UpdateCoinText();
     }
 
@@ -22,6 +23,11 @@ public class CoinManager : MonoBehaviour
             coinsCollected++;
             UpdateCoinText();
         }
+    }
+
+    void FindCoins()
+    {
+        //coins = FindObjectsByType<Coin>(FindObjectsSortMode.None);
     }
 
     void UpdateCoinText()

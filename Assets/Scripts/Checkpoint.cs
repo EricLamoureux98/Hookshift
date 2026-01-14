@@ -1,38 +1,25 @@
+using System;
 using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
-    [SerializeField] TimeTrial timeTrial;
-    [SerializeField] Respawn respawn;
+    public CheckpointType checkpointType;
+    public Transform respawnPoint;
 
-    [SerializeField] bool startCheckpoint;
-    [SerializeField] bool finishCheckpoint;
-    [SerializeField] Transform respawnPoint;
-
-
-
+    public static event Action<Checkpoint> OnCheckpointReached;
 
     void OnTriggerEnter(Collider other)
     {
         if (other.gameObject.tag == "Player")
         {
-            if (respawnPoint != null)
-            {
-                if (startCheckpoint)
-                {
-                    respawn.UpdateSpawnPoint(respawnPoint);
-                    timeTrial.FirstPointReached();                
-                }
-                else if (finishCheckpoint)
-                {
-                    respawn.UpdateSpawnPoint(respawnPoint);
-                    timeTrial.StopTimer();
-                }
-                else
-                {
-                    respawn.UpdateSpawnPoint(respawnPoint);
-                }
-            }            
+            OnCheckpointReached?.Invoke(this);         
         }
     }
+}
+
+public enum CheckpointType
+{
+    First,
+    Normal,
+    Final
 }

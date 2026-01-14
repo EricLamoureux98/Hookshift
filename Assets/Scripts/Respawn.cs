@@ -2,10 +2,7 @@ using UnityEngine;
 
 public class Respawn : MonoBehaviour
 {
-    [SerializeField] Transform rewspawnPoint;
-    //[SerializeField] Transform playerOrientation;
-
-    [SerializeField] TimeTrial timeTrial;
+    Transform rewspawnPoint;
 
     void OnTriggerEnter(Collider other)
     {
@@ -17,11 +14,11 @@ public class Respawn : MonoBehaviour
 
     void RespawnPlayer()
     {
+        if (rewspawnPoint == null) return;
+        
         transform.position = rewspawnPoint.position;
         //playerOrientation.rotation = rewspawnPoint.rotation;
         //playerOrientation.rotation = Quaternion.identity;
-
-        //timeTrial.ResetTimer();
     }
 
     public void UpdateSpawnPoint(Transform newSpawnPoint)

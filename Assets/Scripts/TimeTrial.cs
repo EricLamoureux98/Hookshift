@@ -9,6 +9,7 @@ public class TimeTrial : MonoBehaviour
     [SerializeField] float flashInterval = 0.5f;
     
     float time;
+    float currentTime;
     bool timerActive = false;
 
     void Start()
@@ -50,15 +51,21 @@ public class TimeTrial : MonoBehaviour
         timerAlpha.alpha = 1f;
     }
 
+    public void CheckpointTime()
+    {
+        currentTime = time;
+    }
+
     public void ResetTimer()
     {
-        timerActive = false;
-        time = 0f;
+        time = currentTime;
+        // timerActive = false;
+        // time = 0f;
 
-        if (!timerActive)
-        {
-            StartCoroutine(TimerFlash());
-        }
+        // if (!timerActive)
+        // {
+        //     StartCoroutine(TimerFlash());
+        // }
     }
 
     public void StopTimer()
@@ -80,8 +87,3 @@ public class TimeTrial : MonoBehaviour
         }        
     }
 }
-
-
-// Todo: 
-
-// Save current time at each checkpoint so that it can be reverted after death
