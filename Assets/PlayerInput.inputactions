@@ -70,7 +70,16 @@
                     "initialStateCheck": false
                 },
                 {
-                    "name": "Pull In Grapple",
+                    "name": "Start Swing",
+                    "type": "Button",
+                    "id": "5b04eb4c-7e39-41f0-aa7e-f78fd19f6fb4",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Stop Swing",
                     "type": "Button",
                     "id": "ce7c1767-cf55-4d42-9b63-04ce0c3c4811",
                     "expectedControlType": "",
@@ -230,7 +239,7 @@
                     "interactions": "",
                     "processors": "",
                     "groups": "",
-                    "action": "Pull In Grapple",
+                    "action": "Stop Swing",
                     "isComposite": false,
                     "isPartOfComposite": false
                 },
@@ -253,6 +262,17 @@
                     "processors": "",
                     "groups": "",
                     "action": "Slide",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "a98e480e-468b-4e71-9624-b0f43c0c1122",
+                    "path": "<Mouse>/leftButton",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Start Swing",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

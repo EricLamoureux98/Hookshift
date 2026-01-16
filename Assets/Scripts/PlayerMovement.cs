@@ -13,6 +13,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float walkSpeed;
     [SerializeField] float sprintSpeed;
     [SerializeField] float slideSpeed;
+    [SerializeField] float swingSpeed;
     [SerializeField] float coyoteTime;
     [HideInInspector] public Vector2 moveInput {get; private set;}
     [HideInInspector] public bool movementLockedByGrapple;
@@ -53,6 +54,8 @@ public class PlayerMovement : MonoBehaviour
 
     Vector3 moveDirection;
     Rigidbody rb;    
+
+    public bool isSwinging; // <--- This is temporary
 
     [HideInInspector] public MovementState state;
 
@@ -119,10 +122,15 @@ public class PlayerMovement : MonoBehaviour
         {
             rb.linearDamping = groundDrag;
         }
+        else if (movementLockedByGrapple)
+        {
+            rb.linearDamping = 0f;
+        }
         else
         {
             rb.linearDamping = airDrag;
         }
+        //Debug.Log("Current Drag: " + rb.linearDamping);
     }
 
     void ApplyExtraGravity()
@@ -162,7 +170,8 @@ public class PlayerMovement : MonoBehaviour
     
     void MovePlayer()
     {
-        //if (movementLockedByGrapple) return;
+        if (movementLockedByGrapple) return;
+        if (isSwinging) return;
 
         moveDirection = orientation.forward * moveInput.y + orientation.right * moveInput.x;
 
@@ -197,7 +206,7 @@ public class PlayerMovement : MonoBehaviour
 
     void SpeedControl()
     {
-        //if (movementLockedByGrapple) return; 
+        if (movementLockedByGrapple) return; 
 
         if (IsStandingOnSlope() && !exitingSlope)
         {
@@ -337,6 +346,12 @@ public class PlayerMovement : MonoBehaviour
             }
         }
 
+        if (isSwinging)
+        {
+            state = MovementState.swinging;
+            moveSpeed = swingSpeed;
+        }
+
         if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > speedTransitionThreshold && moveSpeed != 0)
         {
             StopAllCoroutines();
@@ -382,24 +397,12 @@ public class PlayerMovement : MonoBehaviour
         }
     }
 
-    // public void Crouch(InputAction.CallbackContext context)
-    // {
-    //     if (context.performed)
-    //     {
-    //         isCrouching = true;
-    //         rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
-    //     }
-
-    //     if (context.canceled)
-    //     {
-    //         isCrouching = false;
-    //     }
-    // }
-
     public enum MovementState
     {
         walking,
         sprinting,
+        grappling, // <---- unused
+        swinging,
         crouching,
         sliding,
         air

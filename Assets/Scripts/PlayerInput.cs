@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.Video;
 
 public class PlayerInput : MonoBehaviour
 {
@@ -71,16 +72,26 @@ public class PlayerInput : MonoBehaviour
         }        
     }
 
-    public void PullInGrapple(InputAction.CallbackContext context)
+    public void StartSwing(InputAction.CallbackContext context)
     {
-        if (context.performed)
-        {
-            GrapplePullHeld = true;
-        }
-
-        if (context.canceled)
-        {
-            GrapplePullHeld = false;
-        }
+        
     }
+
+    public void StopSwing(InputAction.CallbackContext context)
+    {
+        
+    }
+
+    // public void PullInGrapple(InputAction.CallbackContext context)
+    // {
+    //     if (context.performed)
+    //     {
+    //         GrapplePullHeld = true;
+    //     }
+
+    //     if (context.canceled)
+    //     {
+    //         GrapplePullHeld = false;
+    //     }
+    // }
 }
