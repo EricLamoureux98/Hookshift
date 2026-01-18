@@ -33,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float jumpCooldown;
     [SerializeField] float airControlSpeed;
     bool readyToJump;
+    bool isJumping;
 
     [Header("Crouching")]
     [SerializeField] float crouchSpeed;
@@ -74,6 +75,7 @@ public class PlayerMovement : MonoBehaviour
         StateHandler();
         ApplyCrouch();
         HandleDrag();
+        HandleJumpInput();
     }
 
     void FixedUpdate()
@@ -381,19 +383,20 @@ public class PlayerMovement : MonoBehaviour
     {
         isSprinting = playerInput.SprintHeld;
         isCrouching = playerInput.CrouchHeld;
+        isJumping = playerInput.JumpPressed;
         moveInput = playerInput.MoveInput;
     }
 
-    public void Jump(InputAction.CallbackContext context)
+    void HandleJumpInput()
     {
-        if (context.performed && (coytoteTimer < coyoteTime || isGrounded))
+        if (isJumping && (coytoteTimer < coyoteTime || isGrounded))
         {
             if (readyToJump)
             {
                 readyToJump = false;
                 ApplyJump();
                 Invoke(nameof(ResetJump), jumpCooldown);
-            }            
+            }   
         }
     }
 

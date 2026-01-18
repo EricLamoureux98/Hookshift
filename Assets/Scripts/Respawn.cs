@@ -29,7 +29,7 @@ public class Respawn : MonoBehaviour
     {
         if (rewspawnPoint == null) return;
 
-        Debug.Log("Respawning to: " + rewspawnPoint.position);
+        //Debug.Log("Respawning to: " + rewspawnPoint.position);
         
         Rigidbody rb = GetComponent<Rigidbody>();
         rb.linearVelocity = Vector3.zero;

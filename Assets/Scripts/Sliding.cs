@@ -1,9 +1,9 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class Sliding : MonoBehaviour
 {
     [Header("References")]
+    [SerializeField] PlayerInput playerInput;
     [SerializeField] Transform orientation;
     [SerializeField] Transform playerObj;
     Rigidbody rb;
@@ -15,7 +15,7 @@ public class Sliding : MonoBehaviour
     [SerializeField] float slideYScale;
     float startYScale;
     float slideTimer;
-    //bool isSliding;
+    bool isSliding;
 
     private SlideState slideState;
 
@@ -25,6 +25,12 @@ public class Sliding : MonoBehaviour
         playerMovement = GetComponent<PlayerMovement>();
 
         startYScale = playerObj.localScale.y;
+    }
+
+    void Update()
+    {
+        HandleInput();
+        HandleSlide();
     }
 
     void FixedUpdate()
@@ -102,15 +108,19 @@ public class Sliding : MonoBehaviour
         playerObj.localScale = new Vector3(playerObj.localScale.x, startYScale, playerObj.localScale.z);
     }
 
-    public void Slide(InputAction.CallbackContext context)
+    void HandleInput()
     {
-        if (context.performed && !playerMovement.isSliding)
+        isSliding = playerInput.SlideHeld;
+    }
+
+    void HandleSlide()
+    {
+        if (isSliding && !playerMovement.isSliding)
         {
             StartSlide();
-            //rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
+            rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
         }
-
-        if (context.canceled)
+        else if (!isSliding)
         {
             StopSlide();
         }

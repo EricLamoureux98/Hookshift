@@ -21,7 +21,13 @@ public class Swinging : MonoBehaviour
     [SerializeField] float horizontalThrustForce;
     [SerializeField] float forwardThrustForce;
     [SerializeField] float extendCableSpeed;
+
+    [Header("Input")]
     Vector2 moveInput;
+    bool isExtending;
+    bool isShortening;
+    bool swingingStarted;
+    bool swingingStopped;
 
     void LateUpdate()
     {
@@ -31,11 +37,16 @@ public class Swinging : MonoBehaviour
     void Update()
     {
         ReadInput();
+        HandleInput();
         if (joint != null) AirMovement();
     }
 
     void StartSwing()
     {
+        // Deactivate active grapple
+        GetComponent<GrapplingV2>().StopGrapple();
+        playerMovement.ResetRestrictions();
+        
         playerMovement.isSwinging = true;
 
         RaycastHit hit;
@@ -57,12 +68,11 @@ public class Swinging : MonoBehaviour
             joint.damper = 7f;
             joint.massScale = 4.5f;
 
-            lineRenderer.positionCount = 2;
-            
+            lineRenderer.positionCount = 2;            
         }
     }
 
-    void StopSwing()
+    public void StopSwing()
     {
         playerMovement.isSwinging = false;
 
@@ -88,18 +98,16 @@ public class Swinging : MonoBehaviour
         // Right
         if (moveInput.x > 0) 
         {
-            //Debug.Log("Moving right");
             rb.AddForce(orientation.right * horizontalThrustForce * Time.deltaTime);
         }
         // Left
         if (moveInput.x < 0) 
         {
-            //Debug.Log("Moving left");
             rb.AddForce(-orientation.right * horizontalThrustForce * Time.deltaTime);
         }
 
         // Shorten cable
-        if (playerInput.JumpPressed)
+        if (isShortening)
         {
             Vector3 directionToPoint = swingPoint - transform.position;
             rb.AddForce(directionToPoint.normalized * forwardThrustForce * Time.deltaTime);
@@ -111,7 +119,7 @@ public class Swinging : MonoBehaviour
         }
 
         // Extend cable
-        if (playerInput.CrouchHeld)
+        if (isExtending)
         {
             float extendedDistanceFromPoint = Vector3.Distance(transform.position, swingPoint) + extendCableSpeed;
 
@@ -123,22 +131,27 @@ public class Swinging : MonoBehaviour
     void ReadInput()
     {
         moveInput = playerInput.MoveInput;
-        //extendCable = playerInput.JumpPressed;
+        swingingStarted = playerInput.StartSwingPressedThisFrame;
+        swingingStopped = playerInput.StopSwingPressedThisFrame;
+        isExtending = playerInput.ExtendCableHeld;
+        isShortening = playerInput.ShortenCableHeld;
     }
 
-    public void StartSwing(InputAction.CallbackContext context)
+    void HandleInput()
     {
-        if (context.performed)
+        if (swingingStarted) 
         {
             StartSwing();
         }
-    }
 
-    public void StopSwing(InputAction.CallbackContext context)
-    {
-        if (context.performed)
+        if (swingingStopped) 
         {
             StopSwing();
         }
     }
 }
+
+// NOTES
+
+// Sometimes the player doesn't unattach and gets stuck with an invisible rope
+// Start swinging must only prevent movement if successful

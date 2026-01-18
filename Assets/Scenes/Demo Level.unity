@@ -9064,6 +9064,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1cafd996f49e3224a95ed620b16c3f89, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CameraController
+  playerInput: {fileID: 1264319593}
   cam: {fileID: 330585546}
   orientation: {fileID: 1364436013}
   sensitivity: 0.1
@@ -31823,8 +31824,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Move[/Keyboard/w,/Keyboard/upArrow,/Keyboard/s,/Keyboard/downArrow,/Keyboard/a,/Keyboard/leftArrow,/Keyboard/d,/Keyboard/rightArrow]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 330585548}
-        m_TargetAssemblyTypeName: CameraController, Assembly-CSharp
+      - m_Target: {fileID: 1264319593}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: Look
         m_Mode: 0
         m_Arguments:
@@ -31839,8 +31840,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Look[/Mouse/delta]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1264319590}
-        m_TargetAssemblyTypeName: PlayerMovement, Assembly-CSharp
+      - m_Target: {fileID: 1264319593}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: Jump
         m_Mode: 0
         m_Arguments:
@@ -31871,8 +31872,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Sprint[/Keyboard/leftShift]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1264319594}
-        m_TargetAssemblyTypeName: GrapplingV2, Assembly-CSharp
+      - m_Target: {fileID: 1264319593}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: Grapple
         m_Mode: 0
         m_Arguments:
@@ -31887,8 +31888,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Fire Grapple[/Mouse/leftButton]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1264319596}
-        m_TargetAssemblyTypeName: Swinging, Assembly-CSharp
+      - m_Target: {fileID: 1264319593}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: StopSwing
         m_Mode: 0
         m_Arguments:
@@ -31919,8 +31920,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Crouch[/Keyboard/ctrl]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1264319591}
-        m_TargetAssemblyTypeName: Sliding, Assembly-CSharp
+      - m_Target: {fileID: 1264319593}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: Slide
         m_Mode: 0
         m_Arguments:
@@ -31935,8 +31936,8 @@ MonoBehaviour:
     m_ActionName: 'Player/Slide[/Keyboard/c]'
   - m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1264319596}
-        m_TargetAssemblyTypeName: Swinging, Assembly-CSharp
+      - m_Target: {fileID: 1264319593}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
         m_MethodName: StartSwing
         m_Mode: 0
         m_Arguments:
@@ -31949,6 +31950,38 @@ MonoBehaviour:
         m_CallState: 2
     m_ActionId: 5b04eb4c-7e39-41f0-aa7e-f78fd19f6fb4
     m_ActionName: 'Player/Start Swing[/Mouse/leftButton]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1264319593}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
+        m_MethodName: ExtendCable
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: d8c4f910-f450-4511-adb7-bf07a7fe7bef
+    m_ActionName: 'Player/Extend Cable[/Keyboard/ctrl]'
+  - m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1264319593}
+        m_TargetAssemblyTypeName: PlayerInput, Assembly-CSharp
+        m_MethodName: ShortenCable
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+    m_ActionId: 37bce924-b5ef-434e-aded-460c97f8e769
+    m_ActionName: 'Player/Shorten Cable[/Keyboard/space]'
   m_NeverAutoSwitchControlSchemes: 0
   m_DefaultControlScheme: 
   m_DefaultActionMap: Player
@@ -32000,6 +32033,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 02d3efe91bdde144bb7ffec904859bb4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Sliding
+  playerInput: {fileID: 1264319593}
   orientation: {fileID: 1364436013}
   playerObj: {fileID: 433263294}
   maxSlideTime: 1
@@ -32030,6 +32064,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GrapplingV2
   playerMovement: {fileID: 1264319590}
+  playerInput: {fileID: 1264319593}
   cameraTransform: {fileID: 330585546}
   firePoint: {fileID: 708074751}
   whatCanBeGrappled:

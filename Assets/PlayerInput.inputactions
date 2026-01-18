@@ -86,6 +86,24 @@
                     "processors": "",
                     "interactions": "",
                     "initialStateCheck": false
+                },
+                {
+                    "name": "Extend Cable",
+                    "type": "Button",
+                    "id": "d8c4f910-f450-4511-adb7-bf07a7fe7bef",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
+                },
+                {
+                    "name": "Shorten Cable",
+                    "type": "Button",
+                    "id": "37bce924-b5ef-434e-aded-460c97f8e769",
+                    "expectedControlType": "",
+                    "processors": "",
+                    "interactions": "",
+                    "initialStateCheck": false
                 }
             ],
             "bindings": [
@@ -273,6 +291,28 @@
                     "processors": "",
                     "groups": "",
                     "action": "Start Swing",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "fda02e2f-d67a-4351-b65b-86df7cad40dc",
+                    "path": "<Keyboard>/ctrl",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Extend Cable",
+                    "isComposite": false,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "",
+                    "id": "b894e283-cac1-4141-88fd-57f96875c489",
+                    "path": "<Keyboard>/space",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "Shorten Cable",
                     "isComposite": false,
                     "isPartOfComposite": false
                 }

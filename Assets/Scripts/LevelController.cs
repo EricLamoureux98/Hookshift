@@ -4,9 +4,7 @@ public class LevelController : MonoBehaviour
 {
     [SerializeField] TimeTrial timeTrial;
     [SerializeField] Respawn respawn;
-    //[SerializeField] Checkpoint checkpoint;
 
-    //[SerializeField] Transform startingSpawnPoint;
     Transform currentSpawnPoint;
 
     void OnEnable()
@@ -27,16 +25,16 @@ public class LevelController : MonoBehaviour
         switch (checkpoint.checkpointType)
         {
             case CheckpointType.First:
-                Debug.Log("First checkpoint reached");
+                //Debug.Log("First checkpoint reached");
                 timeTrial.FirstPointReached();
                 break;
 
             case CheckpointType.Normal:
-                Debug.Log("Normal checkpoint reached");
+                //Debug.Log("Normal checkpoint reached");
                 break;
 
             case CheckpointType.Final:
-                Debug.Log("Final checkpoint reached");
+                //Debug.Log("Final checkpoint reached");
                 timeTrial.StopTimer();
                 break;
         }

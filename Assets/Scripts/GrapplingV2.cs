@@ -5,7 +5,7 @@ public class GrapplingV2 : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] PlayerMovement playerMovement;
-    //[SerializeField] PlayerInput playerInput;
+    [SerializeField] PlayerInput playerInput;
     [SerializeField] Transform cameraTransform;
     [SerializeField] Transform firePoint;
     [SerializeField] LayerMask whatCanBeGrappled;
@@ -24,14 +24,13 @@ public class GrapplingV2 : MonoBehaviour
     float grapplingCdTimer;
 
     bool isLaunchingGrapple;
-    //bool isPulling;
+    bool isGrappling;
 
     void Update()
     {
-        if (grapplingCdTimer > 0)
-        {
-            grapplingCdTimer -= Time.deltaTime;
-        }
+        HandleInput();
+        HandleGrapple();
+        GrappleTimer();        
     }
 
     void LateUpdate()
@@ -42,9 +41,20 @@ public class GrapplingV2 : MonoBehaviour
         }
     }
 
+    void GrappleTimer()
+    {
+        if (grapplingCdTimer > 0)
+        {
+            grapplingCdTimer -= Time.deltaTime;
+        }
+    }
+
     void StartGrapple()
     {
         if (grapplingCdTimer > 0) return;
+
+        // Deactivate active swinging
+        GetComponent<Swinging>().StopSwing();
 
         isLaunchingGrapple = true;
 
@@ -85,7 +95,6 @@ public class GrapplingV2 : MonoBehaviour
             highestPointOnArc = overshootYAxis;
         }
 
-        //playerMovement.LaunchToPosition(grapplePoint, highestPointOnArc);
         PlayerMovement.LaunchRequest request = new PlayerMovement.LaunchRequest
         {
             targetPosition = adjustedTarget,
@@ -99,19 +108,19 @@ public class GrapplingV2 : MonoBehaviour
 
     public void StopGrapple()
     {
-        //playerController.SetGrapplingState(false);
         isLaunchingGrapple = false;
-        //isPulling = false;
 
         grapplingCdTimer = grapplingCd;
         lineRenderer.enabled = false;
     }
 
-    public void Grapple(InputAction.CallbackContext context)
+    void HandleInput()
     {
-        if (context.performed)
-        {
-            StartGrapple();
-        }
+        isGrappling = playerInput.GrapplePressedThisFrame;
+    }
+
+    void HandleGrapple()
+    {
+        if (isGrappling) StartGrapple();
     }
 }

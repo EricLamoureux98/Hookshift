@@ -1,14 +1,15 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class CameraController : MonoBehaviour
 {
+    [SerializeField] PlayerInput playerInput;
     [SerializeField] Transform cam;          // Camera transform
     [SerializeField] Transform orientation;  // Player yaw reference
 
     [SerializeField] float sensitivity = 0.1f;
     [SerializeField] float maxPitch = 90f;
 
+    Vector2 lookDelta;
     float pitch; // Up/Down
     float yaw; // Left/Right
 
@@ -18,17 +19,10 @@ public class CameraController : MonoBehaviour
         Cursor.visible = false;
     }
 
-    public void Look(InputAction.CallbackContext context)
+    void Update()
     {
-        if (!context.performed) return;
-
-        Vector2 lookDelta = context.ReadValue<Vector2>();
-
-        yaw += lookDelta.x * sensitivity;
-        pitch -= lookDelta.y * sensitivity;
-
-        // Locks the camera so player can only look straight up or down and not beyond
-        pitch = Mathf.Clamp(pitch, -maxPitch, maxPitch);
+        HandleInput();
+        Look();
     }
 
     void LateUpdate()
@@ -39,4 +33,20 @@ public class CameraController : MonoBehaviour
         // Keep player orientation in sync
         orientation.rotation = Quaternion.Euler(0f, yaw, 0f);
     }
+
+    void HandleInput()
+    {
+        lookDelta = playerInput.CameraInput;   
+    }
+
+    void Look()
+    {
+        if (lookDelta == Vector2.zero) return;
+
+        yaw += lookDelta.x * sensitivity;
+        pitch -= lookDelta.y * sensitivity;
+
+        // Locks the camera so player can only look straight up or down and not beyond
+        pitch = Mathf.Clamp(pitch, -maxPitch, maxPitch);
+    } 
 }
