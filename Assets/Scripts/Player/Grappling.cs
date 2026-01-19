@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class GrapplingV2 : MonoBehaviour
+public class Grappling : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] PlayerMovement playerMovement;

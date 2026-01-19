@@ -44,7 +44,7 @@ public class Swinging : MonoBehaviour
     void StartSwing()
     {
         // Deactivate active grapple
-        GetComponent<GrapplingV2>().StopGrapple();
+        GetComponent<Grappling>().StopGrapple();
         playerMovement.ResetRestrictions();
         
         playerMovement.isSwinging = true;
