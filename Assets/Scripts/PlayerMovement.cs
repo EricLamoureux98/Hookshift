@@ -1,6 +1,5 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.InputSystem;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -280,7 +279,7 @@ public class PlayerMovement : MonoBehaviour
         return Vector3.ProjectOnPlane(direction, slopeHit.normal).normalized;
     }
 
-    IEnumerator SmoothlyLerpMoveSpeed()
+    IEnumerator LerpMoveSpeedToDesired()
     {
         float time = 0;
         float difference = Mathf.Abs(desiredMoveSpeed - moveSpeed);
@@ -313,28 +312,12 @@ public class PlayerMovement : MonoBehaviour
 
     void StateHandler()
     {
-        if (isGrounded && isSprinting)
+        if (isSwinging)
         {
-            state = MovementState.sprinting;
-            desiredMoveSpeed = sprintSpeed;
+            state = MovementState.swinging;
+            desiredMoveSpeed = swingSpeed;
         }
-        else if (isGrounded)
-        {
-            state = MovementState.walking;
-            desiredMoveSpeed = walkSpeed;
-        }
-        else if (isGrounded && isCrouching)
-        {
-            state = MovementState.crouching;
-            desiredMoveSpeed = crouchSpeed;
-            //rb.AddForce(Vector3.down * 5f, ForceMode.Impulse); <--- Add this force later so crouch feels better
-        }
-        else
-        {
-            state = MovementState.air;
-        }        
-
-        if (isSliding)
+        else if (isSliding)
         {
             state = MovementState.sliding;
 
@@ -347,17 +330,39 @@ public class PlayerMovement : MonoBehaviour
                 desiredMoveSpeed = sprintSpeed;
             }
         }
-
-        if (isSwinging)
+        else if (isGrounded)
         {
-            state = MovementState.swinging;
-            moveSpeed = swingSpeed;
-        }
+            if (isSprinting)
+            {
+                state = MovementState.sprinting;
+                desiredMoveSpeed = sprintSpeed;
+            }
+            else if (isCrouching)
+            {
+                state = MovementState.crouching;
+                desiredMoveSpeed = crouchSpeed;
+                //rb.AddForce(Vector3.down * 5f, ForceMode.Impulse); <--- Add this force later so crouch feels better
+            }
+            else
+            {
+                state = MovementState.walking;
+                desiredMoveSpeed = walkSpeed;
+            }
+        }   
+        else
+        {
+            state = MovementState.air;
+        }           
 
+        ApplySpeedTransition();
+    }
+
+    void ApplySpeedTransition()
+    {
         if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > speedTransitionThreshold && moveSpeed != 0)
         {
             StopAllCoroutines();
-            StartCoroutine(SmoothlyLerpMoveSpeed());
+            StartCoroutine(LerpMoveSpeedToDesired());
         }
         else
         {
