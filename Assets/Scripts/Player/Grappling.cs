@@ -4,8 +4,8 @@ using UnityEngine.InputSystem;
 public class Grappling : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] PlayerMovement playerMovement;
-    [SerializeField] PlayerInput playerInput;
+    PlayerMovement playerMovement;
+    PlayerInput playerInput;
     [SerializeField] Transform cameraTransform;
     [SerializeField] Transform firePoint;
     [SerializeField] LayerMask whatCanBeGrappled;
@@ -25,6 +25,12 @@ public class Grappling : MonoBehaviour
 
     bool isLaunchingGrapple;
     bool isGrappling;
+
+    void Awake()
+    {
+        playerMovement = GetComponent<PlayerMovement>();
+        playerInput = GetComponent<PlayerInput>();
+    }
 
     void Update()
     {

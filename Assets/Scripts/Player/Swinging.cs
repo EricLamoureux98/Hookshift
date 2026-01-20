@@ -7,8 +7,9 @@ public class Swinging : MonoBehaviour
     [SerializeField] LineRenderer lineRenderer;
     [SerializeField] Transform gunTip, cam, player;
     [SerializeField] LayerMask whatIsGrappleable;
-    [SerializeField] PlayerMovement playerMovement;
-    [SerializeField] PlayerInput playerInput;
+    PlayerMovement playerMovement;
+    PlayerInput playerInput;
+    Rigidbody rb;
 
     [Header("Swinging")]
     [SerializeField] float maxSwingDistance = 25f;
@@ -17,7 +18,6 @@ public class Swinging : MonoBehaviour
 
     [Header("Air Movement")]
     [SerializeField] Transform orientation;
-    [SerializeField] Rigidbody rb;
     [SerializeField] float horizontalThrustForce;
     [SerializeField] float forwardThrustForce;
     [SerializeField] float extendCableSpeed;
@@ -29,9 +29,11 @@ public class Swinging : MonoBehaviour
     bool swingingStarted;
     bool swingingStopped;
 
-    void LateUpdate()
+    void Awake()
     {
-        DrawRope();
+        rb = GetComponent<Rigidbody>();
+        playerMovement = GetComponent<PlayerMovement>();
+        playerInput = GetComponent<PlayerInput>();
     }
 
     void Update()
@@ -39,6 +41,11 @@ public class Swinging : MonoBehaviour
         ReadInput();
         HandleInput();
         if (joint != null) AirMovement();
+    }
+
+    void LateUpdate()
+    {
+        DrawRope();
     }
 
     void StartSwing()

@@ -31719,15 +31719,17 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1264319588}
-  - component: {fileID: 1264319589}
   - component: {fileID: 1264319587}
+  - component: {fileID: 1264319597}
+  - component: {fileID: 1264319589}
   - component: {fileID: 1264319593}
   - component: {fileID: 1264319590}
   - component: {fileID: 1264319591}
   - component: {fileID: 1264319594}
   - component: {fileID: 1264319595}
   - component: {fileID: 1264319596}
-  - component: {fileID: 1264319597}
+  - component: {fileID: 1264319598}
+  - component: {fileID: 1264319599}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -32001,24 +32003,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   orientation: {fileID: 1364436013}
   playerInput: {fileID: 1264319593}
+  groundChecker: {fileID: 1264319598}
+  playerJump: {fileID: 1264319599}
   groundDrag: 5
   airDrag: 0.6
+  airControlSpeed: 0.2
   walkSpeed: 7
   sprintSpeed: 12
   slideSpeed: 30
   swingSpeed: 15
-  coyoteTime: 0.2
   movementLockedByGrapple: 0
   speedTransitionThreshold: 6
   isSliding: 0
-  gravityMultiplier: 3
-  jumpForce: 9
-  jumpCooldown: 0.25
-  airControlSpeed: 0.2
   crouchSpeed: 3.5
   crouchYScale: 0.5
-  playerHeight: 2
-  maxSlopeAngle: 40
   isSwinging: 0
   state: 0
 --- !u!114 &1264319591
@@ -32034,6 +32032,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Sliding
   playerInput: {fileID: 1264319593}
+  groundChecker: {fileID: 1264319598}
   orientation: {fileID: 1364436013}
   playerObj: {fileID: 433263294}
   maxSlideTime: 1
@@ -32227,6 +32226,40 @@ LineRenderer:
   m_UseWorldSpace: 1
   m_Loop: 0
   m_ApplyActiveColorSpace: 1
+--- !u!114 &1264319598
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1264319586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da5dbb09be26d3d4b9fc2cd1b73d2e30, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GroundChecker
+  coyoteTime: 0.2
+  playerHeight: 2
+  maxSlopeAngle: 40
+--- !u!114 &1264319599
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1264319586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ec3eb30a4759344fa745aa4471d3fbd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerJump
+  playerMovement: {fileID: 1264319590}
+  groundChecker: {fileID: 1264319598}
+  playerInput: {fileID: 1264319593}
+  rb: {fileID: 1264319587}
+  gravityMultiplier: 3
+  jumpForce: 9
+  jumpCooldown: 0.25
 --- !u!43 &1269954270
 Mesh:
   m_ObjectHideFlags: 0

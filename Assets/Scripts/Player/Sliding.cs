@@ -3,11 +3,12 @@ using UnityEngine;
 public class Sliding : MonoBehaviour
 {
     [Header("References")]
-    [SerializeField] PlayerInput playerInput;
-    [SerializeField] Transform orientation;
-    [SerializeField] Transform playerObj;
     Rigidbody rb;
     PlayerMovement playerMovement;
+    GroundChecker groundChecker;
+    PlayerInput playerInput;
+    [SerializeField] Transform orientation;
+    [SerializeField] Transform playerObj;
 
     [Header("Sliding")]
     [SerializeField] float maxSlideTime;
@@ -19,11 +20,16 @@ public class Sliding : MonoBehaviour
 
     private SlideState slideState;
 
-    void Start()
+    void Awake()
     {
         rb = GetComponent<Rigidbody>();
         playerMovement = GetComponent<PlayerMovement>();
+        groundChecker = GetComponent<GroundChecker>();
+        playerInput = GetComponent<PlayerInput>();
+    }
 
+    void Start()
+    {      
         startYScale = playerObj.localScale.y;
     }
 
@@ -43,7 +49,7 @@ public class Sliding : MonoBehaviour
 
     void DetermineSlideState()
     {
-        if (!playerMovement.IsOnSlope || rb.linearVelocity.y > -0.1f)
+        if (!groundChecker.IsOnSlope || rb.linearVelocity.y > -0.1f)
         {
             slideState = SlideState.Flat;
         }
@@ -96,7 +102,7 @@ public class Sliding : MonoBehaviour
     {
         Vector3 inputDirection = orientation.forward * playerMovement.moveInput.y + orientation.right * playerMovement.moveInput.x;
 
-        rb.AddForce(Vector3.ProjectOnPlane(inputDirection, playerMovement.SlopeNormal).normalized * slideForce, ForceMode.Force);
+        rb.AddForce(Vector3.ProjectOnPlane(inputDirection, groundChecker.SlopeNormal).normalized * slideForce, ForceMode.Force);
         //rb.AddForce(playerMovement.GetSlopeMoveDirection(inputDirection) * slideForce, ForceMode.Force);
         rb.AddForce(Vector3.down * 5f, ForceMode.Impulse);
     }
