@@ -31730,6 +31730,7 @@ GameObject:
   - component: {fileID: 1264319596}
   - component: {fileID: 1264319598}
   - component: {fileID: 1264319599}
+  - component: {fileID: 1264319600}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -32002,9 +32003,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
   orientation: {fileID: 1364436013}
-  speedTransitionThreshold: 6
-  groundDrag: 5
-  airDrag: 0.6
   airControlSpeed: 0.2
   walkSpeed: 7
   sprintSpeed: 12
@@ -32012,7 +32010,6 @@ MonoBehaviour:
   swingSpeed: 15
   crouchSpeed: 3.5
   crouchYScale: 0.5
-  movementLockedByGrapple: 0
   isSwinging: 0
   isSliding: 0
   state: 0
@@ -32246,6 +32243,21 @@ MonoBehaviour:
   gravityMultiplier: 3
   jumpForce: 9
   jumpCooldown: 0.25
+--- !u!114 &1264319600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1264319586}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f68d9d819e0870547a910d7f0bb658a3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MovementSpeedController
+  speedTransitionThreshold: 6
+  groundDrag: 5
+  airDrag: 0.6
 --- !u!43 &1269954270
 Mesh:
   m_ObjectHideFlags: 0

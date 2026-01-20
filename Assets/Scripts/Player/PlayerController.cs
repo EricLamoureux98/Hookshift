@@ -5,25 +5,20 @@ public class PlayerController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] Transform orientation;
+    MovementSpeedController speedController;
     GroundChecker groundChecker;
     PlayerInput playerInput;
     Rigidbody rb; 
 
     [Header("Movement")]
     [HideInInspector] public Vector2 moveInput {get; private set;}
-    [SerializeField] float speedTransitionThreshold = 6f;
-    [SerializeField] float groundDrag;
-    [SerializeField] float airDrag;
     [SerializeField] float airControlSpeed;
     [SerializeField] float walkSpeed;
     [SerializeField] float sprintSpeed;
     [SerializeField] float slideSpeed;
     [SerializeField] float swingSpeed;
-    float lastDesiredMoveSpeed;
-    float desiredMoveSpeed;
     Vector3 moveDirection;       
     Vector3 velocityToSet;
-    float moveSpeed;
 
     [Header("Crouching")]
     [SerializeField] float crouchSpeed;
@@ -31,7 +26,7 @@ public class PlayerController : MonoBehaviour
     float startYScale;
 
     [Header("Bools")]
-    [HideInInspector] public bool movementLockedByGrapple;
+    [HideInInspector]  bool movementLockedByGrapple;
     [HideInInspector] public bool isSwinging; // <--- This is temporary
     [HideInInspector] public bool isSliding;
     bool enableMovementOnNextTouch;
@@ -46,6 +41,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         playerInput = GetComponent<PlayerInput>();
         groundChecker = GetComponent<GroundChecker>();
+        speedController = GetComponent<MovementSpeedController>();
     }
 
     void Start()    {
@@ -56,38 +52,21 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         ReadInput();
-        SpeedControl();
         StateHandler();
         ApplyCrouch();
-        HandleDrag();
     }
 
     void FixedUpdate()
     {
+        speedController.SpeedControl(movementLockedByGrapple, exitingSlope);
+        speedController.HandleDrag(movementLockedByGrapple);
         MovePlayer();
         HandleGravity();
     }
 
-    void HandleDrag()
-    {
-        if (groundChecker.isGrounded && !movementLockedByGrapple)
-        {
-            rb.linearDamping = groundDrag;
-        }
-        else if (movementLockedByGrapple)
-        {
-            rb.linearDamping = 0f;
-        }
-        else
-        {
-            rb.linearDamping = airDrag;
-        }
-        //Debug.Log("Current Drag: " + rb.linearDamping);
-    }
-
     void HandleGroundMovement()
     {
-        rb.AddForce(moveDirection.normalized * moveSpeed * 10f, ForceMode.Force);
+        rb.AddForce(moveDirection.normalized * speedController.moveSpeed * 10f, ForceMode.Force);
     }
 
     void HandleSlopeMovement()
@@ -98,7 +77,7 @@ public class PlayerController : MonoBehaviour
             return;
         }
 
-        rb.AddForce(groundChecker.GetSlopeMoveDirection(moveDirection) * moveSpeed * 20f, ForceMode.Force);
+        rb.AddForce(groundChecker.GetSlopeMoveDirection(moveDirection) * speedController.moveSpeed * 20f, ForceMode.Force);
 
         if (rb.linearVelocity.y > 0)
         {
@@ -108,7 +87,7 @@ public class PlayerController : MonoBehaviour
 
     void HandleAirMovement()
     {
-        rb.AddForce(moveDirection.normalized * moveSpeed * 10f * airControlSpeed, ForceMode.Force);
+        rb.AddForce(moveDirection.normalized * speedController.moveSpeed * 10f * airControlSpeed, ForceMode.Force);
     }
     
     void MovePlayer()
@@ -144,30 +123,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void SpeedControl()
-    {
-        if (movementLockedByGrapple) return; 
-
-        if (groundChecker.IsStandingOnSlope() && !exitingSlope)
-        {
-            if (rb.linearVelocity.magnitude > moveSpeed)
-            {
-                rb.linearVelocity = rb.linearVelocity.normalized * moveSpeed;
-            }
-        }
-        else
-        {
-            Vector3 flatVel = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z);
-
-            // Limit velocity
-            if (flatVel.magnitude > moveSpeed)
-            {
-                Vector3 limitedVel = flatVel.normalized * moveSpeed;
-                rb.linearVelocity = new Vector3(limitedVel.x, rb.linearVelocity.y, limitedVel.z);
-            }
-        }
-    }
-
     void ApplyCrouch()
     {     
         if (isCrouching)
@@ -196,22 +151,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    IEnumerator LerpMoveSpeedToDesired()
-    {
-        float time = 0;
-        float difference = Mathf.Abs(desiredMoveSpeed - moveSpeed);
-        float startValue = moveSpeed;
-
-        while (time < difference)
-        {
-            moveSpeed = Mathf.Lerp(startValue, desiredMoveSpeed, time / difference);
-            time += Time.deltaTime;
-            yield return null;
-        }
-
-        moveSpeed = desiredMoveSpeed;
-    }
-
     public void LaunchToPosition(Vector3 targetPosition, float trajectoryHeight)
     {
         movementLockedByGrapple = true; 
@@ -232,7 +171,7 @@ public class PlayerController : MonoBehaviour
         if (isSwinging)
         {
             state = MovementState.swinging;
-            desiredMoveSpeed = swingSpeed;
+            speedController.SetDesiredMoveSpeed(swingSpeed);
         }
         else if (isSliding)
         {
@@ -240,11 +179,11 @@ public class PlayerController : MonoBehaviour
 
             if (groundChecker.IsStandingOnSlope() && rb.linearVelocity.y < 0.1f)
             {
-                desiredMoveSpeed = slideSpeed;
+                speedController.SetDesiredMoveSpeed(slideSpeed);
             }
             else
             {
-                desiredMoveSpeed = sprintSpeed;
+                speedController.SetDesiredMoveSpeed(sprintSpeed);
             }
         }
         else if (groundChecker.isGrounded)
@@ -252,18 +191,18 @@ public class PlayerController : MonoBehaviour
             if (isSprinting)
             {
                 state = MovementState.sprinting;
-                desiredMoveSpeed = sprintSpeed;
+                speedController.SetDesiredMoveSpeed(sprintSpeed);
             }
             else if (isCrouching)
             {
                 state = MovementState.crouching;
-                desiredMoveSpeed = crouchSpeed;
+                speedController.SetDesiredMoveSpeed(crouchSpeed);
                 //rb.AddForce(Vector3.down * 5f, ForceMode.Impulse); <--- Add this force later so crouch feels better
             }
             else
             {
                 state = MovementState.walking;
-                desiredMoveSpeed = walkSpeed;
+                speedController.SetDesiredMoveSpeed(walkSpeed);
             }
         }   
         else
@@ -271,23 +210,7 @@ public class PlayerController : MonoBehaviour
             state = MovementState.air;
         }           
 
-        ApplySpeedTransition();
-    }
-
-    void ApplySpeedTransition()
-    {
-        if (Mathf.Abs(desiredMoveSpeed - lastDesiredMoveSpeed) > speedTransitionThreshold && moveSpeed != 0)
-        {
-            StopAllCoroutines();
-            StartCoroutine(LerpMoveSpeedToDesired());
-        }
-        else
-        {
-            moveSpeed = desiredMoveSpeed;
-        }
-
-        lastDesiredMoveSpeed = desiredMoveSpeed;
-        //Debug.Log($"State: {state}, MoveSpeed: {moveSpeed}, Crouching: {isCrouching}");
+        speedController.ApplySpeedTransition();
     }
 
     public struct LaunchRequest
@@ -300,17 +223,17 @@ public class PlayerController : MonoBehaviour
     {
         LaunchToPosition(request.targetPosition, request.arcHeight);
     }
+    
+    public void SetExitingSlope(bool value)
+    {
+        exitingSlope = value;
+    }
 
     void ReadInput()
     {
         isSprinting = playerInput.SprintHeld;
         isCrouching = playerInput.CrouchHeld;
         moveInput = playerInput.MoveInput;
-    }
-
-    public void SetExitingSlope(bool value)
-    {
-        exitingSlope = value;
     }
 
     public enum MovementState
