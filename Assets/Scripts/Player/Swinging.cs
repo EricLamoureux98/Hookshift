@@ -7,7 +7,7 @@ public class Swinging : MonoBehaviour
     [SerializeField] LineRenderer lineRenderer;
     [SerializeField] Transform gunTip, cam, player;
     [SerializeField] LayerMask whatIsGrappleable;
-    PlayerMovement playerMovement;
+    PlayerController playerMovement;
     PlayerInput playerInput;
     Rigidbody rb;
 
@@ -32,7 +32,7 @@ public class Swinging : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        playerMovement = GetComponent<PlayerMovement>();
+        playerMovement = GetComponent<PlayerController>();
         playerInput = GetComponent<PlayerInput>();
     }
 

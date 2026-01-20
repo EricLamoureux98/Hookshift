@@ -4,7 +4,7 @@ public class Sliding : MonoBehaviour
 {
     [Header("References")]
     Rigidbody rb;
-    PlayerMovement playerMovement;
+    PlayerController playerMovement;
     GroundChecker groundChecker;
     PlayerInput playerInput;
     [SerializeField] Transform orientation;
@@ -23,7 +23,7 @@ public class Sliding : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        playerMovement = GetComponent<PlayerMovement>();
+        playerMovement = GetComponent<PlayerController>();
         groundChecker = GetComponent<GroundChecker>();
         playerInput = GetComponent<PlayerInput>();
     }

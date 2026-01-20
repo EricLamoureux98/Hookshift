@@ -1,15 +1,17 @@
 using System.Collections;
 using UnityEngine;
 
-public class PlayerMovement : MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
     [Header("References")]
     [SerializeField] Transform orientation;
-    PlayerInput playerInput;
     GroundChecker groundChecker;
+    PlayerInput playerInput;
     Rigidbody rb; 
 
     [Header("Movement")]
+    [HideInInspector] public Vector2 moveInput {get; private set;}
+    [SerializeField] float speedTransitionThreshold = 6f;
     [SerializeField] float groundDrag;
     [SerializeField] float airDrag;
     [SerializeField] float airControlSpeed;
@@ -17,28 +19,25 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float sprintSpeed;
     [SerializeField] float slideSpeed;
     [SerializeField] float swingSpeed;
-    [HideInInspector] public Vector2 moveInput {get; private set;}
-    [HideInInspector] public bool movementLockedByGrapple;
-    [SerializeField] float speedTransitionThreshold = 6f;
+    float lastDesiredMoveSpeed;
+    float desiredMoveSpeed;
+    Vector3 moveDirection;       
     Vector3 velocityToSet;
     float moveSpeed;
-    bool isSprinting;
-    [HideInInspector] public bool isSliding;
-    float desiredMoveSpeed;
-    float lastDesiredMoveSpeed;
 
     [Header("Crouching")]
     [SerializeField] float crouchSpeed;
     [SerializeField] float crouchYScale;
     float startYScale;
-    bool isCrouching;
 
-    bool exitingSlope;
+    [Header("Bools")]
+    [HideInInspector] public bool movementLockedByGrapple;
+    [HideInInspector] public bool isSwinging; // <--- This is temporary
+    [HideInInspector] public bool isSliding;
     bool enableMovementOnNextTouch;
-    Vector3 moveDirection;
-       
-
-    public bool isSwinging; // <--- This is temporary
+    bool exitingSlope;
+    bool isCrouching;
+    bool isSprinting;
 
     [HideInInspector] public MovementState state;
 

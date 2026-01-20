@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PlayerJump : MonoBehaviour
 {
-    PlayerMovement playerMovement;
+    PlayerController PlayerController;
     GroundChecker groundChecker;
     PlayerInput playerInput;
     Rigidbody rb;
@@ -17,7 +17,7 @@ public class PlayerJump : MonoBehaviour
     void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        playerMovement = GetComponent<PlayerMovement>();
+        PlayerController = GetComponent<PlayerController>();
         groundChecker = GetComponent<GroundChecker>();
         playerInput = GetComponent<PlayerInput>();
     }
@@ -49,7 +49,7 @@ public class PlayerJump : MonoBehaviour
 
     void ApplyJump()
     {
-        playerMovement.SetExitingSlope(true);
+        PlayerController.SetExitingSlope(true);
 
         // Reset y velocity - Makes jump height consistent
         rb.linearVelocity = new Vector3(rb.linearVelocity.x, 0f, rb.linearVelocity.z); // Directly setting velocity – overrides physics
@@ -60,7 +60,7 @@ public class PlayerJump : MonoBehaviour
     void ResetJump()
     {
         readyToJump = true;
-        playerMovement.SetExitingSlope(false);
+        PlayerController.SetExitingSlope(false);
     }
 
     public void ApplyJumpInput()

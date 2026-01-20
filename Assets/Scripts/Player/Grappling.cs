@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 public class Grappling : MonoBehaviour
 {
     [Header("References")]
-    PlayerMovement playerMovement;
+    PlayerController playerMovement;
     PlayerInput playerInput;
     [SerializeField] Transform cameraTransform;
     [SerializeField] Transform firePoint;
@@ -28,7 +28,7 @@ public class Grappling : MonoBehaviour
 
     void Awake()
     {
-        playerMovement = GetComponent<PlayerMovement>();
+        playerMovement = GetComponent<PlayerController>();
         playerInput = GetComponent<PlayerInput>();
     }
 
@@ -101,7 +101,7 @@ public class Grappling : MonoBehaviour
             highestPointOnArc = overshootYAxis;
         }
 
-        PlayerMovement.LaunchRequest request = new PlayerMovement.LaunchRequest
+        PlayerController.LaunchRequest request = new PlayerController.LaunchRequest
         {
             targetPosition = adjustedTarget,
             arcHeight = highestPointOnArc
